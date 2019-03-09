@@ -1,0 +1,73 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<link href="~/Scripts/datepicker/plugins.css" rel="stylesheet" />
+<script src="~/Scripts/datepicker/bootstrap-datetimepicker.js"></script>
+
+<script type="text/javascript">
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+    $(function () {
+        InitControl();
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/ProductCal/SetFaultForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/ProductCal/SubmitFaultForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                parent.windowload();
+                parent.layer.close(index);
+            });
+        }, 200);
+    }
+
+
+</script>
+
+
+<form id="form1">
+    <ul id="myTab" class="nav nav-tabs">
+        <li class="active">
+            <a href="#basic" data-toggle="tab">
+                改善信息
+            </a>
+        </li>
+
+    </ul>
+    <div id="myTabContent" class="tab-content">
+        <div class="tab-pane fade in active" id="basic">
+            <table class="table table-bordered">
+                <tr>
+                    <th class="formTitle">原因分析：</th>
+                    <td class="formValue" colspan="3">
+                        <textarea style="width:100%;height:75px" id="CauseAnaly" class="txt" datacol="yes" err="原因分析" checkexpession="NotNull"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">改进措施：</th>
+                    <td class="formValue" colspan="3">
+                        <textarea style="width:100%;height:75px" id="ImproveMeasure" class="txt" datacol="yes" err="改进措施" checkexpession="NotNull"></textarea>
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+
+    </div>
+
+</form>

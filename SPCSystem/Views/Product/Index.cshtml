@@ -1,0 +1,128 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<br>
+<div class="row">
+    <div class="col-lg-2">
+        <input class="form-control" id="keywords" placeholder="可根据零件名称本厂编号进行搜索">
+    </div>
+    <div class="col-lg-2">
+        <button type="button" class="btn btn-info" onclick="btn_Search()">查询</button>
+    </div>
+    <div class="col-lg-8">
+       
+    </div>
+    <div class="col-lg-4">
+        <button type="button" class="btn btn-info" onclick="btn_add()">新增</button>
+        <button type="button" class="btn btn-info" onclick="btn_edit()">编辑</button>
+        <button type="button" class="btn btn-danger" onclick="btn_delete()">删除</button>
+    </div>
+    <div class="col-lg-4">
+    </div>
+    <div class="col-lg-4">
+    </div>
+</div>
+
+<div class="row">
+
+    <div class="col-lg-12">
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        GetGrid();
+    });
+    //搜索
+    function btn_Search() {
+        var keywords = "";
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "/Product/GridPageListJson?keywords="+$("#keywords").val(), page: 1
+        }).trigger('reloadGrid');
+    }
+    //加载表格
+    function GetGrid() {
+        //alert(123);
+        var SelectRowIndx;
+        $("#gridTable").jqGrid({
+            url: "/Product/GridPageListJson",
+            datatype: "json",
+            height: $(window).height() - 268,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'productid', index: 'productid', width: 80, align: 'left', hidden: true },
+                { label: '客户', name: 'customer', index: 'customer', width: 100, align: 'left' },
+                { label: '产品名称', name: 'partname', index: 'partname', width: 200, align: 'left' },
+                { label: '本厂编号', name: 'productno', index: 'productno', width: 200, align: 'left' },
+                { label: '特性', name: 'feature', index: 'feature', width: 200, align: 'left' },
+                { label: '控制图类型', name: 'picturetype', index: 'picturetype', width: 200, align: 'left' },
+            ],
+            altRows: true,//单双行样式不同
+            altclass: 'differ',
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'productno',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            multiselect: false,
+            //cellattr: addCellAttr,
+
+            // useColSpanStyle:true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                //LoadViewList();
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            }
+        });
+        //columnModelData("#gridTable");
+        //自应高度
+        $(window).resize(function () {
+            $("#gridTable").setGridHeight($(window).height() - 178);
+        });
+
+    }
+
+
+
+    //新增
+    function btn_add() {
+        var url = "/Product/Form"
+        layerDialog(url, '新增', 900, 600);
+
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "productid");
+        if (IsChecked(KeyValue)) {
+            var url = "/Product/Form?KeyValue=" + KeyValue;
+            layerDialog(url, '编辑', 900, 600);
+
+        }
+    }
+
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "productid");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/Product/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+    }
+</script>
+

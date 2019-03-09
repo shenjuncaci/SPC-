@@ -1,0 +1,261 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<link href="~/Scripts/datepicker/plugins.css" rel="stylesheet" />
+<script src="~/Scripts/datepicker/bootstrap-datetimepicker.js"></script>
+
+<script type="text/javascript">
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+    $(function () {
+
+        //加载下拉框
+        BindCompany();
+        InitControl();
+        DetailForm();
+        CriterionForm();
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/Product/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["Detail"] = JSON.stringify($('#tableDetail').jfGridGet('rowdatas'));
+            postData["Detail2"] = JSON.stringify($('#tableCriterion').jfGridGet('rowdatas'));
+            //tableCriterion
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/Product/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                parent.windowload();
+                parent.layer.close(index);
+            });
+        }, 200);
+    }
+
+    function DetailForm() {
+        $('#tableDetail').jfGrid({
+            headData: [
+                {
+                    label: '控制项目', name: 'caltype', width: 160, align: 'left', editType: 'input'
+                },
+                {
+                    label: '初始Ppk/Pp', name: 'startppk', width: 160, align: 'left', editType: 'input'
+                },
+                {
+                    label: '标准上控制限', name: 'standardupperlimit', width: 160, align: 'left', editType: 'input'
+                },
+                {
+                    label: '标准下控制限', name: 'standardlowlimit', width: 160, align: 'left', editType: 'input'
+                },
+                {
+                    label: '标准中位线', name: 'standardcenterline', width: 160, align: 'left', editType: 'input'
+                },
+                {
+                    label: 'XBar平均值', name: 'xaverage', width: 160, align: 'left', editType: 'input'
+                },
+                {
+                    label: 'XBar上控制限', name: 'xupperlimit', width: 160, align: 'left', editType: 'input'
+                },
+                {
+                    label: 'XBar下控制限', name: 'xlowlimit', width: 160, align: 'left', editType: 'input'
+                },
+                {
+                    label: 'XBar中位线', name: 'xcenterline', width: 160, align: 'left', editType: 'input'
+                },
+                {
+                    label: 'R平均值', name: 'raverage', width: 160, align: 'left', editType: 'input'
+                },
+                {
+                    label: 'R上控制限', name: 'rupperlimit', width: 160, align: 'left', editType: 'input'
+                },
+                {
+                    label: 'R下控制限', name: 'rlowlimit', width: 160, align: 'left', editType: 'input'
+                },
+                {
+                    label: 'R中位线', name: 'rcenterline', width: 160, align: 'left', editType: 'input'
+                },
+                {
+                    label: '抽样频次', name: 'groupnum', width: 160, align: 'left', editType: 'input'
+                },
+                {
+                    label: '公差范围', name: 'tolerance', width: 160, align: 'left', editType: 'input'
+                },
+               @*{
+                   label: '测试字段', name: 'test', width: 260, align: 'left', editType: 'select',
+                   editOp: {
+                       width: 600,
+                       height: 400,
+                       colData: [
+                           { label: "抽样频次", name: "groupnum", width: 100, align: "left" },
+                           { label: "公差范围", name: "tolerance", width: 200, align: "left" }
+                       ],
+                       url: "@Url.Content("~/Product/GridPageListJson2")",
+                param: { itemCode: '' },
+                callback: function (selectdata, rownum, row) {
+                //row.fy_cus_id = selectdata.fy_cus_id;
+                row.test = selectdata.groupnum;
+            }
+        }
+        },*@
+            ],
+            isAutoHeight: true,
+            isEidt: true,
+            footerrow: true,
+            minheight: 400
+        });
+
+
+        //$('#gridTable').jfGridSet('refreshdata', { rowdatas: data[id] });
+
+        AjaxJson("/Product/GridPageListJson2", { MID: GetQuery('KeyValue') }, function (DataJson) {
+            //console.log(DataJson);
+            $('#tableDetail').jfGridSet('refreshdata', { rowdatas: DataJson });
+        })
+    }
+
+
+    function CriterionForm() {
+        $('#tableCriterion').jfGrid({
+            headData: [
+                {
+                    label: '判异准则编号', name: 'criterionno', width: 260, align: 'left', editType: 'select',
+                           editOp: {
+                               width: 600,
+                               height: 400,
+                               colData: [
+                                   { label: "判异准则编号", name: "criterionno", width: 100, align: "left" },
+                                   { label: "判异准则", name: "criterionname", width: 400, align: "left" }
+                               ],
+                               url: "@Url.Content("~/Product/GridPageListJsonBasic")",
+                            param: { itemCode: '' },
+                            callback: function (selectdata, rownum, row) {
+                                row.criterionname = selectdata.criterionname;
+                                row.criterionno = selectdata.criterionno;
+                        }
+                    }
+                },
+                {
+                    label: '判异准则', name: 'criterionname', width: 400, align: 'left', editType: 'select',
+                    editOp: {
+                        width: 600,
+                        height: 400,
+                        colData: [
+                            { label: "判异准则编号", name: "criterionno", width: 100, align: "left" },
+                            { label: "判异准则", name: "criterionname", width: 400, align: "left" },
+                        ],
+                        url: "@Url.Content("~/Product/GridPageListJsonBasic")",
+                        param: { itemCode: '' },
+                        callback: function (selectdata, rownum, row) {
+                            row.criterionname = selectdata.criterionname;
+                            row.criterionno = selectdata.criterionno;
+                        },
+                    }
+                },
+                ],
+            isAutoHeight: true,
+            isEidt: true,
+            footerrow: true,
+            minheight: 400
+        });
+        AjaxJson("/Product/GridPageListJson3", { MID: GetQuery('KeyValue') }, function (DataJson) {
+            //console.log(DataJson);
+            $('#tableCriterion').jfGridSet('refreshdata', { rowdatas: DataJson });
+        })
+    }
+
+    function BindCompany() {
+        $("#CompanyID").html("");
+
+        $("#CompanyID").append("<option value=''>==请选择==</option>");
+        AjaxJson("/Department/CompanyJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#CompanyID").append($("<option></option>").val(DataJson[i].departmentid).html(DataJson[i].departmentname));
+            });
+        })
+    }
+
+</script>
+
+
+<form id="form1">
+    <ul id="myTab" class="nav nav-tabs">
+        <li class="active">
+            <a href="#basic" data-toggle="tab">
+                产品信息
+            </a>
+        </li>
+        <li><a href="#detail" data-toggle="tab">测量信息</a></li>
+        <li><a href="#criterion" data-toggle="tab">检测方法</a></li>
+    </ul>
+    <div id="myTabContent" class="tab-content">
+        <div class="tab-pane fade in active" id="basic">
+            <table class="table table-bordered">
+
+                <tr>
+                    <th class="formTitle">客户：</th>
+                    <td class="formValue" colspan="1">
+                        <input id="Customer" class="txt" datacol="yes" err="客户" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue" colspan="1"></td>
+                </tr>
+                <tr>
+                    <th class="formTitle">部件名称：</th>
+                    <td class="formValue" colspan="1">
+                        <input id="PartName" class="txt" datacol="yes" err="部件名称" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle">本厂编号：</th>
+                    <td class="formValue" colspan="1">
+                        <input id="ProductNO" class="txt" datacol="yes" err="本厂编号" checkexpession="NotNull" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">特性：</th>
+                    <td class="formValue" colspan="1">
+                        <input id="Feature" class="txt" datacol="yes" err="特性" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle">计算方式：</th>
+                    <td class="formValue" colspan="1">
+                        <select id="PictureType" class="txtselect" datacol="yes" err="计算方式" checkexpession="NotNull">
+                            <option value=''>==请选择==</option>
+                            <option value='X-Bar'>X-Bar</option>
+                            <option value='X-MR'>X-MR</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">所属公司：</th>
+                    <td class="formValue" colspan="1">
+                        <select id="CompanyID" class="txtselect" datacol="yes" err="所属公司" checkexpession="NotNull"></select>
+                    </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue" colspan="1"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="tab-pane fade" id="detail">
+            <div id="tableDetail"></div>
+        </div>
+        <div class="tab-pane fade" id="criterion">
+            <div id="tableCriterion"></div>
+        </div>
+    </div>
+
+</form>

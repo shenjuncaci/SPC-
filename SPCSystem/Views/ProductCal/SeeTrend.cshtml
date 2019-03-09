@@ -1,0 +1,921 @@
+﻿
+@{
+    ViewBag.Title = "SeeTrend";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+
+<script src="~/Scripts/echarts/echarts.js"></script>
+<link href="~/Scripts/jqprint/PrintCss.css" rel="stylesheet" />
+<script src="~/Scripts/jqprint/jquery.jqprint-0.3.js"></script>
+<script src="~/Scripts/html2canvas/html2canvas.js"></script>
+
+<div class="row">
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>开始日期</label></div>
+    <div class="col-lg-2"><input id="startDate" class="form-control" type="text"  onfocus="WdatePicker()" /></div>
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>结束日期</label></div>
+    <div class="col-lg-2"><input id="endDate" type="text" class="form-control" onfocus="WdatePicker()" /></div>
+    <div class="col-lg-1"><button type="button" class="btn btn-info" onclick="btn_Search()">查询</button></div>
+</div>
+<br>
+<div id="PrintArea">
+<div class="row">
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>产品名称</label></div>
+    <div class="col-lg-2"><input readonly id="PartName" class="form-control" type="text" /></div>
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>本厂编号</label></div>
+    <div class="col-lg-2"><input readonly id="ProductNO" class="form-control" type="text" /></div>
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>特性</label></div>
+    <div class="col-lg-2"><input readonly id="Feature" class="form-control" type="text" /></div>
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>控制图类型</label></div>
+    <div class="col-lg-2"><input readonly id="PictureType" class="form-control" type="text" /></div>
+</div>
+<div class="row">
+   
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>控制项目</label></div>
+    <div class="col-lg-2"><input readonly id="CalType" class="form-control" type="text" /></div>
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>初始Ppk/Pp</label></div>
+    <div class="col-lg-2"><input readonly id="StartPPK" class="form-control" type="text" /></div>
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>客户</label></div>
+    <div class="col-lg-2"><input readonly id="Customer" class="form-control" type="text" /></div>
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>公差</label></div>
+    <div class="col-lg-2"><input readonly id="Tolerance" class="form-control" type="text" /></div>
+    
+</div>
+<div class="row">
+
+        <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>标准上控制限</label></div>
+        <div class="col-lg-2"><input readonly id="StandardUpperLimit" class="form-control" type="text" /></div>
+        <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>标准下控制限</label></div>
+        <div class="col-lg-2"><input readonly id="StandardLowLimit" class="form-control" type="text" /></div>
+        <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>标准中位线</label></div>
+        <div class="col-lg-2"><input readonly id="StandardCenterLine" class="form-control" type="text" /></div>
+        <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>CPK</label></div>
+        <div class="col-lg-2"><input readonly id="CalCPK" class="form-control" type="text" /></div>
+
+    </div>
+<div class="row">
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>XBar平均值</label></div>
+    <div class="col-lg-2"><input readonly id="XAverage" class="form-control" type="text" /></div>
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>XBar上控制限</label></div>
+    <div class="col-lg-2"><input readonly id="XUpperLimit" class="form-control" type="text" /></div>
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>XBar下控制限</label></div>
+    <div class="col-lg-2"><input readonly id="XLowLimit" class="form-control" type="text" /></div>
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>XBar中位线</label></div>
+    <div class="col-lg-2"><input readonly id="XCenterLine" class="form-control" type="text" /></div>
+    
+</div>
+<div class="row">
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>R平均值</label></div>
+    <div class="col-lg-2"><input readonly id="RAverage" class="form-control" type="text" /></div>
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>R上控制限</label></div>
+    <div class="col-lg-2"><input readonly id="RUpperLimit" class="form-control" type="text" /></div>
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>R下控制限</label></div>
+    <div class="col-lg-2"><input readonly id="RLowLimit" class="form-control" type="text" /></div>
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>R中位线</label></div>
+    <div class="col-lg-2"><input readonly id="RCenterLine" class="form-control" type="text" /></div>
+
+</div>
+<div class="row">
+    <div class="col-lg-1"></div>
+    <div class="col-lg-10" id="X-BarPicture"></div>
+    <div class="col-lg-1"></div>
+</div>
+<div class="row">
+    <div class="col-lg-1"></div>
+    <div class="col-lg-10" id="RPicture"></div>
+    <div class="col-lg-1"></div>
+</div>
+<div class="row">
+    <div class="col-lg-1"></div>
+    <div class="col-lg-10">明细数据</div>
+    <div class="col-lg-1"></div>
+</div>
+<div class="row">
+    <div class="col-lg-1"></div>
+    <div class="col-lg-10"><div id="DetailTable" style="width:auto;overflow-y:auto; overflow-x:auto; "></div></div>
+    <div class="col-lg-1"></div>
+</div>
+<div class="row">
+    <div class="col-lg-1"></div>
+    <div class="col-lg-10">检测异常数据</div>
+    <div class="col-lg-1"></div>
+</div>
+<div class="row">
+    <div class="col-lg-1"></div>
+    <div class="col-lg-10" id="FaultTable"></div>
+    <div class="col-lg-1"></div>
+</div>
+</div>
+
+<script>
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+    $(document).ready(function () {
+       
+        //设置开始日期和结束日期,结束日期默认为当天，开始日期默认为当天-30天
+        var enddate = new Date();
+        var startdate = new Date(enddate);
+        startdate.setDate(enddate.getDate() - 30);
+        $("#startDate").val(CusDateFormat(startdate));
+        $("#endDate").val(CusDateFormat(enddate));
+        //alert(aa(datestart));
+        //alert(aa(dateend));
+        //var PageSize = GetPageSize();
+        //console.log(PageSize);
+        //console.log(PageSize);
+        var EHeight = Number(GetQuery("Height")) - 100;
+        var EWidth = Number(GetQuery("Width"))  - 100;
+        //alert(EHeight);
+        //alert(EWidth);
+        $("#X-BarPicture").css("height", EHeight/3);
+        $("#X-BarPicture").css("width", EWidth);
+
+        $("#RPicture").css("height", EHeight / 3);
+        $("#RPicture").css("width", EWidth);
+
+        SetForm();
+        if(GetQuery("PictureType")=="X-Bar")
+        {
+            SetXbar();
+            
+        }
+        else
+        {
+            SetMR();
+        }
+        CalCPK();
+        
+        SetDetailTable();
+        SetFaultTable();
+        
+    })
+
+    function SetForm()
+    {
+        AjaxJson("/ProductCal/SetForm", { ProductCalID: GetQuery('ProductCalID') }, function (data) {
+            SetWebControls(data);
+
+        });
+    }
+
+    function btn_Search()
+    {
+        if(GetQuery("PictureType")=="X-Bar")
+        {
+            SetXbar();
+           
+        }
+        else
+        {
+            SetMR();
+        }
+        CalCPK();
+        SetDetailTable();
+        SetFaultTable();
+    }
+
+    function SetXbar()
+    {
+        var Jdata;
+        var Xdata = new Array();
+        var Y1 = new Array();  //xbar值
+        var Y2 = new Array(); //标准上限
+        var Y3 = new Array(); //标准下线
+        var Y4 = new Array();  //x上限
+        var Y5 = new Array();//x下线
+        var Y6 = new Array(); //x中心线
+
+        //以下为R图中的y
+        var Y7 = new Array();
+        var Y8 = new Array();
+        var Y9 = new Array();
+        var Y10 = new Array();
+
+        var color= ['#4B0091', 'blue','blue', 'red', 'red','yellow'];
+        var color2=['#4B0091', 'red', 'red','yellow'];
+
+        $.ajax({
+            type: "post",
+            dataType: "json",
+            url: RootPath()+"/ProductCal/GetTrend",
+            data: {
+                ProductCalID: GetQuery("ProductCalID"),
+                StartDate: $("#startDate").val(),
+                EndDate: $("#endDate").val()
+            },
+            async: false,
+            success: function (data) {
+               //console.log(data);
+                
+                for (var i = 0; i < data.length; i++) {
+                    Xdata.push(data[i].riqi);
+                    Y1.push(data[i].xbar);
+                    Y2.push(data[i].standardlowlimit);
+                    Y3.push(data[i].standardupperlimit);
+                    Y4.push(data[i].xlowlimit);
+                    Y5.push(data[i].xupperlimit);
+                    Y6.push(data[i].xcenterline);
+                   
+
+                    Y7.push(data[i].r);
+                    Y8.push(data[i].rlowlimit);
+                    Y9.push(data[i].rupperlimit);
+                    Y10.push(data[i].rcenterline);
+                }
+            }
+        });
+
+        option = {
+            title: {
+                text: 'X-Bar',
+                //textStyle: {
+                //    color: 'black'
+                //},
+                x: "right",
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    crossStyle: {
+                        color: '#999'
+                    }
+                }
+            },
+            grid: {
+                left: '8%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: Xdata,
+            },
+            color: ['#4B0091', 'blue','blue', 'red', 'red','yellow'],
+            legend: {
+                data: ['X-Bar','标准下限','标准上限','X下限','X上限','X中心线'],
+                textStyle: {
+                    color: 'black'
+                },
+                //right: '10%',
+            },
+            yAxis: [{
+                type: 'value',
+                name: 'value',
+                axisLabel: {
+                    formatter: '{value}'
+                },
+                axisLine: {
+                    lineStyle: {
+                        color: 'black'
+                    }
+                }
+
+            },
+            ],
+            series: [
+                 {
+                     name: 'X-Bar',
+                     type: 'line',
+                     data: Y1,
+                     smooth: true,
+                     itemStyle: {
+                         normal: {
+                             label : {show: true},
+                             lineStyle: {
+                                 color: color[0]
+                             }
+                         }
+                     },
+                 },
+                 {
+                     name: '标准下限',
+                     type: 'line',
+                     data: Y2,
+                     smooth: false,
+                     itemStyle: {
+                         normal: {
+                            // label : {show: true},
+                             lineStyle: {
+                                 color: color[1],
+                                 type:'dotted'
+                             }
+                         }
+                     },
+                 },
+                 {
+                     name: '标准上限',
+                     type: 'line',
+                     data: Y3,
+                     smooth: false,
+                     itemStyle: {
+                         normal: {
+                             //label : {show: true},
+                             lineStyle: {
+                                 color: color[2],
+                                 type:'dotted'
+                             }
+                         }
+                     },
+                 },
+                 {
+                     name: 'X下限',
+                     type: 'line',
+                     data: Y4,
+                     smooth: false,
+                     itemStyle: {
+                         normal: {
+                             //label : {show: true},
+                             lineStyle: {
+                                 color: color[3],
+                                 type:'dotted'
+                             }
+                         }
+                     },
+                 },
+                 {
+                     name: 'X上限',
+                     type: 'line',
+                     data: Y5,
+                     smooth: false,
+                     itemStyle: {
+                         normal: {
+                             //label : {show: true},
+                             lineStyle: {
+                                 color:color[4],
+                                 type:'dotted'
+                             }
+                         }
+                     },
+                 },
+                 {
+                     name: 'X中心线',
+                     type: 'line',
+                     data: Y6,
+                     smooth: false,
+                     itemStyle: {
+                         normal: {
+                             //label : {show: true},
+                             lineStyle: {
+                                 color: color[5],
+                                 type:'dotted'
+                             }
+                         }
+                     },
+                 },
+            ]
+        };
+        var myChart = echarts.init(document.getElementById('X-BarPicture'));
+        myChart.setOption(option, true);
+
+
+
+        //r图配置
+        option = {
+            title: {
+                text: 'R',
+                x: "right",
+                //textStyle: {
+                //    color: 'black'
+                //},
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    crossStyle: {
+                        color: '#999'
+                    }
+                }
+            },
+            grid: {
+                left: '8%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: Xdata,
+            },
+            color: ['#4B0091', 'red', 'red','yellow'],
+            legend: {
+                data: ['R', 'R下限','R上限', 'R中心线'],
+                textStyle: {
+                    color: 'black'
+                },
+                //right: '10%',
+            },
+            yAxis: [{
+                type: 'value',
+                name: 'value',
+                axisLabel: {
+                    formatter: '{value}'
+                },
+                axisLine: {
+                    lineStyle: {
+                        color: 'black'
+                    }
+                }
+
+            },
+            ],
+            series: [
+                 {
+                     name: 'R',
+                     type: 'line',
+                     data: Y7,
+                     smooth: true,
+                     itemStyle: {
+                         normal: {
+                             label : {show: true},
+                             lineStyle: {
+                                 color: color2[0]
+                             }
+                         }
+                     },
+                 },
+                 {
+                     name: 'R下限',
+                     type: 'line',
+                     data: Y8,
+                     smooth: false,
+                     itemStyle: {
+                         normal: {
+                             //label : {show: true},
+                             lineStyle: {
+                                 color: color2[1],
+                                 type:'dotted'
+                             }
+                         }
+                     },
+                 },
+                 {
+                     name: 'R上限',
+                     type: 'line',
+                     data: Y9,
+                     smooth: false,
+                     itemStyle: {
+                         normal: {
+                             //label : {show: true},
+                             lineStyle: {
+                                 color:color2[2],
+                                 type:'dotted'
+                             }
+                         }
+                     },
+                 },
+                 {
+                     name: 'R中心线',
+                     type: 'line',
+                     data: Y10,
+                     smooth: false,
+                     itemStyle: {
+                         normal: {
+                             //label : {show: true},
+                             lineStyle: {
+                                 color:color2[3],
+                                 type:'dotted'
+                             }
+                         }
+                     },
+                 },
+
+            ]
+        };
+        var myChart2 = echarts.init(document.getElementById('RPicture'));
+        myChart2.setOption(option, true);
+
+            
+    }
+
+    function SetDetailTable()
+    {
+        $.ajax({
+            type: "post",
+            dataType: "text",
+            url: RootPath()+"/ProductCal/DetailTable",
+            data: {
+                ProductCalID: GetQuery("ProductCalID"),
+                StartDate: $("#startDate").val(),
+                EndDate: $("#endDate").val()
+            },
+            async: false,
+            success: function (data) {
+                //console.log(data);
+                document.getElementById("DetailTable").innerHTML = data;
+            }
+        });
+    }
+
+    function CalCPK()
+    {
+        $.ajax({
+            type: "post",
+            dataType: "text",
+            url: RootPath()+"/ProductCal/CalCPK",
+            data: {
+                ProductCalID: GetQuery("ProductCalID"),
+                StartDate: $("#startDate").val(),
+                EndDate: $("#endDate").val(),
+                PictureType:GetQuery("PictureType")
+            },
+            async: false,
+            success: function (data) {
+                //console.log(data);
+                //document.getElementById("DetailTable").innerHTML = data;
+                $("#CalCPK").val(data);
+            }
+        });
+    }
+
+    function SetFaultTable()
+    {
+        $.ajax({
+            type: "post",
+            dataType: "text",
+            url: RootPath()+"/ProductCal/FaultTable",
+            data: {
+                ProductCalID: GetQuery("ProductCalID"),
+                StartDate: $("#startDate").val(),
+                EndDate: $("#endDate").val()
+            },
+            async: false,
+            success: function (data) {
+                //console.log(data);
+                document.getElementById("FaultTable").innerHTML = data;
+            }
+        });
+    }
+
+    //导出为图片功能,扩大两倍，清晰
+    function AcceptClick()
+    {
+        html2canvas(document.querySelector("#PrintArea"),{
+            dpi: window.devicePixelRatio*2,
+            scale:2,
+            width:$("#PrintArea").offsetWidth,
+            heigth:$("#PrintArea").offsetHeight,
+        }).then(canvas => {
+            //alert(canvas.toDataURL())
+            //canvas.width=width*2;
+            //downloadPicture(canvas.toDataURL())
+            downloadPicture(canvas)
+        });
+
+    }
+
+    function downloadPicture(canvas)
+    {
+        //canvas.width=canvas.width*2;
+        //canvas.height=canvas.height*2;
+        var imgUrl=canvas.toDataURL();
+        //imgUrl
+        if(window.navigator.msSaveOrOpenBlob)
+        {
+            var bstr=atob(imgUrl.split(',')[1]);
+            var n=bstr.length;
+            var u8arr=new Uint8Array(n);
+            while(n--)
+            {
+                u8arr[n]=bstr.charCodeAt(n);
+            }
+            var blob=new Blob([u8arr]);
+            window.navigator.msSaveOrOpenBlob(blob,'chart-download'+'.'+'png');
+        }
+        else
+        {
+            const a=document.createElement('a');
+            a.href=imgUrl;
+            a.setAttribute('download','chart-download');
+            a.click();
+        }
+    }
+
+
+
+
+    //MR图相关功能
+    function SetMR()
+    {
+        var Jdata;
+        var Xdata = new Array();
+        var X2data = new Array();
+        var Y1 = new Array();  //xbar值
+        var Y2 = new Array(); //标准上限
+        var Y3 = new Array(); //标准下线
+        var Y4 = new Array();  //x上限
+        var Y5 = new Array();//x下线
+        var Y6 = new Array(); //x中心线
+
+        //以下为R图中的y
+        var Y7 = new Array();
+        var Y8 = new Array();
+        var Y9 = new Array();
+        var Y10 = new Array();
+
+        //颜色和legend的颜色对应
+        var color= ['#4B0091', 'blue','blue', 'red', 'red','yellow'];
+        var color2=['#4B0091', 'red', 'red','yellow'];
+
+        $.ajax({
+            type: "post",
+            dataType: "json",
+            url: RootPath()+"/ProductCal/GetMRTrend",
+            data: {
+                ProductCalID: GetQuery("ProductCalID"),
+                StartDate: $("#startDate").val(),
+                EndDate: $("#endDate").val()
+            },
+            async: false,
+            success: function (data) {
+                //console.log(data);
+                
+                for (var i = 0; i < data.length; i++) {
+                    Xdata.push(data[i].riqi);
+                    Y1.push(data[i].x);
+                    Y2.push(data[i].StandardLowLimit);
+                    Y3.push(data[i].StandardUpperLimit);
+                    Y4.push(data[i].XLowLimit);
+                    Y5.push(data[i].XUpperLimit);
+                    Y6.push(data[i].XCenterLine);
+                   
+                    if(i>0)
+                    {
+                        X2data.push(data[i].riqi);
+                        Y7.push(data[i].mr);
+                        Y8.push(data[i].RLowLimit);
+                        Y9.push(data[i].RUpperLimit);
+                        Y10.push(data[i].RCenterLine);
+                    }
+                    
+                }
+            }
+        });
+
+        option = {
+            title: {
+                text: 'X图',
+                x: "right",
+                //textStyle: {
+                //    color: 'black'
+                //},
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    crossStyle: {
+                        color: '#999'
+                    }
+                }
+            },
+            grid: {
+                left: '8%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: Xdata,
+            },
+            color: ['#4B0091', 'blue','blue', 'red', 'red','yellow'],
+            legend: {
+                data: ['X', '标准下限', '标准上限','X下限','X上限','X中心线'],
+                textStyle: {
+                    color: 'black'
+                },
+                //right: '10%',
+            },
+            yAxis: [{
+                type: 'value',
+                name: 'value',
+                axisLabel: {
+                    formatter: '{value}'
+                },
+                axisLine: {
+                    lineStyle: {
+                        color: 'black'
+                    }
+                }
+
+            },
+            ],
+            series: [
+                 {
+                     name: 'X',
+                     type: 'line',
+                     data: Y1,
+                     smooth: true,
+                     itemStyle: {
+                         normal: {
+                             label : {show: true},
+                             lineStyle: {
+                                 color: color[0]
+                             }
+                         }
+                     },
+                 },
+                 {
+                     name: '标准下限',
+                     type: 'line',
+                     data: Y2,
+                     smooth: false,
+                     itemStyle: {
+                         
+                         normal: {
+                             //label : {show: true},
+                             lineStyle: {
+                                 color: color[1],
+                                 type:'dotted'
+                             }
+                         }
+                     },
+                 },
+                 {
+                     name: '标准上限',
+                     type: 'line',
+                     data: Y3,
+                     smooth: false,
+                     itemStyle: {
+                         normal: {
+                             //label : {show: true},
+                             lineStyle: {
+                                 color: color[2],
+                                 type:'dotted'
+                             }
+                         }
+                     },
+                 },
+                 {
+                     name: 'X下限',
+                     type: 'line',
+                     data: Y4,
+                     smooth: false,
+                     itemStyle: {
+                         normal: {
+                             //label : {show: true},
+                             lineStyle: {
+                                 color: color[3],
+                                 type:'dotted'
+                             }
+                         }
+                     },
+                 },
+                 {
+                     name: 'X上限',
+                     type: 'line',
+                     data: Y5,
+                     smooth: false,
+                     itemStyle: {
+                         normal: {
+                             //label : {show: true},
+                             lineStyle: {
+                                 color:color[4],
+                                 type:'dotted'
+                             }
+                         }
+                     },
+                 },
+                 {
+                     name: 'X中心线',
+                     type: 'line',
+                     data: Y6,
+                     smooth: false,
+                     itemStyle: {
+                         normal: {
+                             //label : {show: true},
+                             lineStyle: {
+                                 color: color[5],
+                                 type:'dotted'
+                             }
+                         }
+                     },
+                 },
+            ]
+        };
+        var myChart = echarts.init(document.getElementById('X-BarPicture'));
+        myChart.setOption(option, true);
+
+
+
+        //r图配置
+        option = {
+            title: {
+                text: 'MR图',
+                x: "right",
+                //textStyle: {
+                //    color: 'black'
+                //},
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    crossStyle: {
+                        color: '#999'
+                    }
+                }
+            },
+            grid: {
+                left: '8%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: Xdata,
+            },
+            color: ['#4B0091', 'red', 'red','yellow'],
+            legend: {
+                data: ['MR', 'R下限','R上限', 'R中心线'],
+                textStyle: {
+                    color: 'black'
+                },
+                //right: '10%',
+            },
+            yAxis: [{
+                type: 'value',
+                name: 'value',
+                axisLabel: {
+                    formatter: '{value}'
+                },
+                axisLine: {
+                    lineStyle: {
+                        color: 'black'
+                    }
+                }
+
+            },
+            ],
+            series: [
+                 {
+                     name: 'MR',
+                     type: 'line',
+                     data: Y7,
+                     smooth: true,
+                     itemStyle: {
+                         normal: {
+                             label : {show: true},
+                             lineStyle: {
+                                 color: color2[0]
+                             }
+                         }
+                     },
+                 },
+                 {
+                     name: 'R下限',
+                     type: 'line',
+                     data: Y8,
+                     smooth: false,
+                     itemStyle: {
+                         normal: {
+                             //label : {show: true},
+                             lineStyle: {
+                                 color: color2[1],
+                                 type:'dotted'
+                             }
+                         }
+                     },
+                 },
+                 {
+                     name: 'R上限',
+                     type: 'line',
+                     data: Y9,
+                     smooth: false,
+                     itemStyle: {
+                         normal: {
+                             //label : {show: true},
+                             lineStyle: {
+                                 color:color2[2],
+                                 type:'dotted'
+                             }
+                         }
+                     },
+                 },
+                 {
+                     name: 'R中心线',
+                     type: 'line',
+                     data: Y10,
+                     smooth: false,
+                     itemStyle: {
+                         normal: {
+                             //label : {show: true},
+                             lineStyle: {
+                                 color:color2[3],
+                                 type:'dotted'
+                             }
+                         }
+                     },
+                 },
+
+            ]
+        };
+        var myChart2 = echarts.init(document.getElementById('RPicture'));
+        myChart2.setOption(option, true);
+
+            
+    }
+</script>
+

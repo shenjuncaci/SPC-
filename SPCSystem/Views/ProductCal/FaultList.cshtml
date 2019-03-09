@@ -1,0 +1,124 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<br>
+<div class="row">
+    <div class="col-lg-2">
+        <input class="form-control" id="keywords" placeholder="可根据报警名称进行搜索">
+    </div>
+    <div class="col-lg-2">
+        <button type="button" class="btn btn-info" onclick="btn_Search()">查询</button>
+    </div>
+    <div class="col-lg-8">
+
+    </div>
+    <div class="col-lg-4">
+        <button type="button" class="btn btn-info" onclick="btn_analy()">原因分析</button>
+        @*<button type="button" class="btn btn-info" onclick="btn_edit()">编辑</button>
+        <button type="button" class="btn btn-danger" onclick="btn_delete()">删除</button>*@
+    </div>
+    <div class="col-lg-4">
+    </div>
+    <div class="col-lg-4">
+    </div>
+</div>
+
+<div class="row">
+
+    <div class="col-lg-12">
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        GetGrid();
+    });
+    //搜索
+    function btn_Search() {
+        var keywords = "";
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "/ProductCal/GridFaultListJson?keywords="+$("#keywords").val(), page: 1
+        }).trigger('reloadGrid');
+    }
+    //加载表格
+    function GetGrid() {
+        //alert(123);
+        var SelectRowIndx;
+        $("#gridTable").jqGrid({
+            url: "/ProductCal/GridFaultListJson",
+            datatype: "json",
+            height: $(window).height() - 268,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'calfaultid', index: 'calfaultid', width: 80, align: 'left', hidden: true },
+                { label: '零件号', name: 'productno', index: 'productno', width: 100, align: 'left' },
+                { label: '零件名称', name: 'partname', index: 'partname', width: 100, align: 'left' },
+                { label: '错误点', name: 'faultcontent', index: 'faultcontent', width: 200, align: 'left' },
+                { label: '错误来源', name: 'faultfrom', index: 'faultfrom', width: 50, align: 'left' },
+                { label: '原因分析', name: 'causeanaly', index: 'causeanaly', width: 200, align: 'left' },
+                { label: '改善措施', name: 'improvemeasure', index: 'improvemeasure', width: 200, align: 'left' },
+                { label: '检测人', name: 'createby', index: 'createby', width: 100, align: 'left' },
+                { label: '检测时间', name: 'createdate', index: 'createdate', width: 100, align: 'left', formatter: dateFormat }
+            ],
+            altRows: true,//单双行样式不同
+            altclass: 'differ',
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'createdate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            multiselect: false,
+            //cellattr: addCellAttr,
+
+            // useColSpanStyle:true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                //LoadViewList();
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            }
+        });
+        //columnModelData("#gridTable");
+        //自应高度
+        $(window).resize(function () {
+            $("#gridTable").setGridHeight($(window).height() - 178);
+        });
+
+    }
+
+    function btn_analy() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "calfaultid");
+        if (IsChecked(KeyValue)) {
+            var url = "/ProductCal/FaultForm?KeyValue=" + KeyValue;
+            layerDialog(url, '编辑', 900, 600);
+
+        }
+    }
+
+   
+
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+    }
+
+    function dateFormat(cellvalue, options, rowObject) {
+        if (cellvalue == "0001-01-01T00:00:00" || cellvalue == null) {
+            return "";
+        }
+        else {
+            return String(cellvalue).substring(0, 10);
+        }
+    }
+</script>
+

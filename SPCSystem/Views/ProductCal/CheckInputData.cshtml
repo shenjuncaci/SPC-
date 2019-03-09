@@ -1,0 +1,61 @@
+﻿
+@{
+    ViewBag.Title = "CheckInputData";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+
+<form id="form1">
+    <div id="tableDetail"></div>
+</form>
+
+<script>
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+    $(function () {
+
+        //InitControl();
+        DetailForm();
+        //隐藏新增和删除按钮
+        $("#jfgrid_toolbar_tableDetail").css("display", "none");
+    })
+    function DetailForm() {
+        $('#tableDetail').jfGrid({
+            headData: [
+                //{
+                //    label: 'carid', name: 'calid', width: 160, align: 'left', editType: 'input',hidden:true
+                //},
+                {
+                    label: '测量值', name: 'inputvalue', width: 160, align: 'left', editType: 'input'
+                },
+            ],
+            isAutoHeight: true,
+            isEidt: true,
+            footerrow: false,
+            minheight: 400
+        });
+
+
+        //$('#gridTable').jfGridSet('refreshdata', { rowdatas: data[id] });
+
+        AjaxJson("/ProductCal/GridThisCheckListJson", { ProductCalID: GetQuery('ProductCalID') }, function (DataJson) {
+            //console.log(DataJson);
+            $('#tableDetail').jfGridSet('refreshdata', { rowdatas: DataJson });
+        })
+    }
+
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["Detail"] = JSON.stringify($('#tableDetail').jfGridGet('rowdatas'));
+            
+            AjaxJson("/ProductCal/SubmitProductCalData?ProductCalID=" + GetQuery('ProductCalID'), postData, function (data) {
+                parent.layer.alert(data.Message, { icon: 6 });
+                parent.layer.close(index);
+            });
+        }, 200);
+    }
+</script>

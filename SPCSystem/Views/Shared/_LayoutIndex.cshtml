@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+
+
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/Site.css" rel="stylesheet" />
+    <script src="~/Scripts/modernizr-2.6.2.js"></script>
+
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+
+    <script src="~/Scripts/bootstrap.js"></script>
+    <script src="~/Scripts/respond.js"></script>
+    @*jqgrid相关*@
+    <script src="~/Content/jqgrid/jquery-ui-custom.min.js"></script>
+    <script src="~/Content/jqgrid/grid.locale-cn.js"></script>
+    <link href="~/Content/jqgrid/css/jqgrid.css" rel="stylesheet" />
+    <script src="~/Content/jqgrid/jqGrid.js"></script>
+    <script src="~/Content/jqgrid/jqGridexpand.js"></script>
+    @*弹出窗口相关*@
+    <link href="~/Scripts/jquery.layer/theme/default/layer.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery.layer/layer.js"></script>
+    @*框架相关*@
+    <script src="~/Scripts/FrameWork.js"></script>
+    <script src="~/Scripts/Validator.js"></script>
+
+
+
+</head>
+<body>
+    <div>
+        @RenderBody()
+    </div>
+</body>
+</html>

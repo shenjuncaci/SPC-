@@ -1,0 +1,147 @@
+﻿
+@{
+    ViewBag.Title = "UserForm";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+
+<form id="form1">
+    <table class="table table-bordered">
+
+        <tr>
+            <th class="formTitle">用户名：</th>
+            <td class="formValue" colspan="1">
+                <input id="UserName" class="txt" datacol="yes" err="用户名" checkexpession="NotNull" />
+            </td>
+            <th class="formTitle">是否管理员</th>
+            <td class="formValue" colspan="1">
+                <select id="IsSystem" class="txtselect" datacol="yes" err="是否管理员" checkexpession="NotNull">
+                    <option value=''>==请选择==</option>
+                    <option value='1'>是</option>
+                    <option value='0'>否</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">是否报警</th>
+            <td class="formValue" colspan="1">
+                <select id="IsSystem" class="txtselect" datacol="yes" err="是否管理员" checkexpession="NotNull">
+                    <option value=''>==请选择==</option>
+                    <option value='1'>是</option>
+                    <option value='0'>否</option>
+                </select>
+            </td>
+            <th class="formTitle">报警等级</th>
+            <td class="formValue" colspan="1">
+                <select id="IsSystem" class="txtselect" datacol="yes" err="报警等级" checkexpession="NotNull">
+                    <option value=''>==请选择==</option>
+                    <option value='一级报警'>一级报警</option>
+                    <option value='二级报警'>二级报警</option>
+                </select>
+            </td>
+
+        </tr>
+        <tr>
+            <th class="formTitle">报警邮箱：</th>
+            <td class="formValue" colspan="3">
+                <input id="AlarmMail" class="txt" datacol="yes" err="报警邮箱" checkexpession="NotNull" />
+            </td>
+        </tr>
+
+        <tr>
+            <th class="formTitle">登录账号：</th>
+            <td class="formValue" colspan="1">
+                <input id="Code" class="txt" datacol="yes" err="登录账号" checkexpession="NotNull" />
+            </td>
+            <th class="formTitle">登录密码</th>
+            <td class="formValue" colspan="1">
+                <input id="Password" class="txt" datacol="yes" err="登录密码" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">所属公司：</th>
+            <td class="formValue" colspan="1">
+                <select id="CompanyID" class="txtselect" datacol="yes" err="所属公司" checkexpession="NotNull" onchange="BindDepartment()"></select>
+            </td>
+            <th class="formTitle">所属部门</th>
+            <td class="formValue" colspan="1">
+                <select id="DepartmentID" class="txtselect" datacol="yes" err="所属部门" checkexpession="NotNull"></select>
+            </td>
+        </tr>
+    </table>
+
+</form>
+
+<script>
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+    $(function () {
+
+        //加载下拉框
+        BindCompany();
+        InitControl();
+
+        
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/Department/SetUserForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+
+            AjaxJson("/Department/SubmitUserForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                parent.windowload2();
+                parent.layer.close(index);
+            });
+        }, 200);
+    }
+
+    function BindCompany()
+    {
+        $("#CompanyID").html("");
+
+        $("#CompanyID").append("<option value=''>==请选择==</option>");
+        AjaxJson("/Department/CompanyJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#CompanyID").append($("<option></option>").val(DataJson[i].departmentid).html(DataJson[i].departmentname));
+            });
+        })
+
+        $("#DepartmentID").html("");
+
+        $("#DepartmentID").append("<option value=''>==请选择==</option>");
+        AjaxJson("/Department/DepartmentJson", { CompanyID: $("#CompanyID").val() }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#DepartmentID").append($("<option></option>").val(DataJson[i].departmentid).html(DataJson[i].departmentname));
+            });
+        })
+
+       
+    }
+
+    function BindDepartment()
+    {
+        $("#DepartmentID").html("");
+
+        $("#DepartmentID").append("<option value=''>==请选择==</option>");
+        AjaxJson("/Department/DepartmentJson", { CompanyID: $("#CompanyID").val() }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#DepartmentID").append($("<option></option>").val(DataJson[i].departmentid).html(DataJson[i].departmentname));
+            });
+        })
+    }
+</script>
+
+
+

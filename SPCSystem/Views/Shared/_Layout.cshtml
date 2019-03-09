@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - SPC管理系统</title>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/Site.css" rel="stylesheet" />
+    <script src="~/Scripts/modernizr-2.6.2.js"></script>
+
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+
+    <script src="~/Scripts/bootstrap.js"></script>
+    <script src="~/Scripts/respond.js"></script>
+     
+
+    
+    @*jqgrid相关*@
+    @*<link href="~/Scripts/JQGrid/css/ui.jqgrid-bootstrap-ui.css" rel="stylesheet" />
+    <script src="~/Scripts/JQGrid/js/jquery.jqGrid.js"></script>*@
+    <script src="~/Content/jqgrid/jquery-ui-custom.min.js"></script>
+    <script src="~/Content/jqgrid/grid.locale-cn.js"></script>
+    <link href="~/Content/jqgrid/css/jqgrid.css" rel="stylesheet" />
+
+
+    <script src="~/Content/jqgrid/jqGrid.js"></script>
+    <script src="~/Content/jqgrid/jqGridexpand.js"></script>
+
+
+    @*弹出窗口相关*@
+    <link href="~/Scripts/jquery.layer/theme/default/layer.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery.layer/layer.js"></script>
+
+    @*框架相关*@
+    <script src="~/Scripts/FrameWork.js"></script>
+    <script src="~/Scripts/Validator.js"></script>
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("SPCSystem", "Index", "Home", null, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("主页", "Index", "Home")</li>
+                    @if(ManageProvider.Provider.IsOverdue()==true)
+                    { 
+                    <li>@Html.ActionLink("检测数据录入", "Index", "ProductCal")</li>
+                        if(ManageProvider.Provider.Current().IsCompanySystem==true)
+                        { 
+                    <li>@Html.ActionLink("产品维护", "Index", "Product")</li>
+                    <li>@Html.ActionLink("组织架构维护", "Index", "Department")</li>
+                    <li>@Html.ActionLink("报警设置", "Index", "Alarm")</li>
+                    <li>@Html.ActionLink("潜在风险", "Index", "PotenntialRisk")</li>
+                    <li>@Html.ActionLink("异常数据台账", "FaultList", "ProductCal")</li>
+                    <li>@Html.ActionLink("关于", "About", "Home")</li>
+                    <li>@Html.ActionLink("联系方式", "Contact", "Home")</li>
+                    }
+                    }
+                </ul>
+                @Html.Partial("_LoginPartial")
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - SPC管理系统</p>
+        </footer>
+    </div>
+
+
+    @*@RenderSection("scripts", required: false)*@
+</body>
+</html>

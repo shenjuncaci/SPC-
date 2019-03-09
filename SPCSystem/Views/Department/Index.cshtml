@@ -1,0 +1,197 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Scripts/tree/tree.css" rel="stylesheet" />
+<script src="~/Scripts/tree/tree.js"></script>
+
+
+<div class="row">
+    <div class="col-lg-2">
+        <div id="ItemsTree"></div>
+    </div>
+    <div class="col-lg-10">
+        <div class="row">
+            <div class="col-lg-1">
+                <button type="button" class="btn btn-info" onclick="btn_add()">新增</button>
+            </div>
+            <div class="col-lg-1">
+                <button type="button" class="btn btn-info" onclick="btn_edit()">修改</button>
+            </div>
+            <div class="col-lg-1">
+                <button type="button" class="btn btn-info" onclick="btn_del()">删除</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <table id="gridTable"></table>
+                <div id="gridPager"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-1">
+                <button type="button" class="btn btn-info" onclick="btn_Useradd()">新增</button>
+            </div>
+            <div class="col-lg-1">
+                <button type="button" class="btn btn-info" onclick="btn_Useredit()">修改</button>
+            </div>
+            <div class="col-lg-1">
+                <button type="button" class="btn btn-info" onclick="btn_Userdel()">删除</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <table id="gridTable2"></table>
+                <div id="gridPager2"></div>
+            </div>
+        </div>
+       </div>
+</div>
+
+<script>
+    var CompanyId="0", CompanyName = "";
+    $(document).ready(function () {
+        GetTree();
+        GetGrid();
+        GetGrid2();
+    });
+   
+    //加载左边树
+    function GetTree() {
+        var itemtree = {
+            onnodeclick: function (item) {
+                CompanyId = item.id;            //ID
+                CompanyName = item.text;        //名称
+                $("#CenterTitle").html(" - " + CompanyName);
+                $("#gridTable").jqGrid('setGridParam', { url: "/Department/GridPageListJson?CompanyID=" + CompanyId }).trigger('reloadGrid');
+                $("#gridTable2").jqGrid('setGridParam', { url: "/Department/GridPageUserListJson?CompanyID=" + CompanyId }).trigger('reloadGrid');
+            },
+            url: "/Department/TreeJson"
+        };
+        
+        $("#ItemsTree").treeview(itemtree);
+    }
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "/Department/GridPageListJson?CompanyID=" + CompanyId,
+            datatype: "json",
+            height: $(window).height()/2 - 128,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'departmentid', index: "departmentid", hidden: true },
+                
+                { label: '部门', name: 'departmentname', index: "departmentname", width: 200 },
+
+            ],
+            altRows: true,//单双行样式不同
+            altclass: 'differ',
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'SortNO',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            multiselect: false,
+        });
+        //columnModelData("#gridTable");
+    }
+
+    //新增
+    function btn_add() {
+        var url = "/Department/Form"
+        layerDialog(url, '新增', 900, 600);
+
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "departmentid");
+        if (IsChecked(KeyValue)) {
+            var url = "/Department/Form?KeyValue=" + KeyValue;
+            layerDialog(url, '编辑', 900, 600);
+
+        }
+    }
+
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "departmentid");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/Department/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+    }
+
+    function GetGrid2() {
+        $("#gridTable2").jqGrid({
+            url: "/Department/GridPageUserListJson?CompanyID=" + CompanyId,
+            datatype: "json",
+            height: $(window).height() / 2 - 128,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'userid', index: "userid", hidden: true },
+                { label: '账号', name: 'code', index: "code", width: 100 },
+                { label: '所属部门', name: 'departmentname', index: "departmentname", width: 200 },
+                { label: '所属公司', name: 'companyname', index: "companyname", width: 200 },
+            ],
+            altRows: true,//单双行样式不同
+            altclass: 'differ',
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'code',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            multiselect: false,
+        });
+        //columnModelData("#gridTable");
+    }
+
+    //刷新
+    function windowload2() {
+        $("#gridTable2").trigger("reloadGrid"); //重新载入
+    }
+
+    function btn_Useradd()
+    {
+        if (CompanyId == "0")
+        {
+            alert("请先选择部门");
+            return false;
+        }
+        var url = "/Department/UserForm"
+        layerDialog(url, '新增', 900, 600);
+    }
+
+    function btn_Useredit()
+    {
+        var KeyValue = GetJqGridRowValue("#gridTable2", "userid");
+        if (IsChecked(KeyValue)) {
+            var url = "/Department/UserForm?KeyValue=" + KeyValue;
+            layerDialog(url, '编辑', 900, 600);
+
+        }
+    }
+    function btn_Userdel()
+    {
+        var KeyValue = GetJqGridRowValue("#gridTable2", "userid");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/Department/UserDelete', delparm, KeyValue.split(",").length);
+        }
+    }
+</script>
+

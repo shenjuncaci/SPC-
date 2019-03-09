@@ -1,0 +1,118 @@
+﻿
+@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+
+<form id="form1">
+    <table class="table table-bordered">
+
+        <tr>
+            <th class="formTitle">名称：</th>
+            <td class="formValue" colspan="1">
+                <input id="DepartmentName" class="txt" datacol="yes" err="名称" checkexpession="NotNull" />
+            </td>
+            <th class="formTitle">类别</th>
+            <td class="formValue" colspan="1">
+                <select id="IsCompany" class="txtselect" datacol="yes" err="类别" checkexpession="NotNull">
+                    @if(ManageProvider.Provider.Current().IsSystem==true)
+                    {
+                         <option value=''>==请选择==</option>
+                         <option value='1'>公司</option>
+                    }
+                   
+                    <option value='0'>部门</option>
+                    
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">父节点：</th>
+            <td class="formValue" colspan="1">
+                <select id="ParentID" class="txtselect" datacol="yes" err="父节点" checkexpession="NotNull"></select>
+            </td>
+            <th class="formTitle">排序号</th>
+            <td class="formValue" colspan="1">
+                <input id="SortNo" class="txt" datacol="yes" err="排序号" checkexpession="NotNull" />
+            </td>
+        </tr>
+        @*<tr>
+            <th class="formTitle">所属公司：</th>
+            <td class="formValue" colspan="1">
+                <input id="PartName" class="txt" datacol="yes" err="部件名称" checkexpession="NotNull" />
+            </td>
+            <th class="formTitle">本厂编号：</th>
+            <td class="formValue" colspan="1">
+                <input id="ProductNO" class="txt" datacol="yes" err="本厂编号" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr></tr>
+        <tr>
+            <th class="formTitle">特性：</th>
+            <td class="formValue" colspan="1">
+                <input id="Feature" class="txt" datacol="yes" err="特性" checkexpession="NotNull" />
+            </td>
+            <th class="formTitle">计算方式：</th>
+            <td class="formValue" colspan="1">
+                <select id="PictureType" class="txtselect" datacol="yes" err="计算方式" checkexpession="NotNull">
+                    <option value=''>==请选择==</option>
+                    <option value='X-Bar'>X-Bar</option>
+                    <option value='X-MR'>X-MR</option>
+                </select>
+            </td>
+        </tr>*@
+    </table>
+
+</form>
+
+<script>
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+    $(function () {
+
+        //加载下拉框
+        BindParentNode();
+        InitControl();
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/Department/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+       
+            AjaxJson("/Department/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                parent.windowload();
+                parent.GetTree();
+                parent.layer.close(index);
+            });
+        }, 200);
+    }
+
+    function BindParentNode() {
+        $("#ParentID").html("");
+
+        if ('@ManageProvider.Provider.Current().IsSystem' == "True")
+        {
+            $("#ParentID").append("<option value='0'>顶层节点</option>");
+        }
+        AjaxJson("/Department/CompanyJson", { }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#ParentID").append($("<option></option>").val(DataJson[i].departmentid).html(DataJson[i].departmentname));
+            });
+        })
+    }
+</script>
+
+

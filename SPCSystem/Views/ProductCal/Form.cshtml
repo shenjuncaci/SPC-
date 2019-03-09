@@ -1,0 +1,129 @@
+﻿
+@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+<br>
+<div class="row">
+    <div class="col-lg-2">
+        <input class="form-control" id="keywords" placeholder="可根据零件名称本厂编号进行搜索">
+    </div>
+    <div class="col-lg-2">
+        <button type="button" class="btn btn-info" onclick="btn_Search()">查询</button>
+    </div>
+    <div class="col-lg-8">
+
+    </div>
+    @*<div class="col-lg-4">
+        <button type="button" class="btn btn-info" onclick="btn_add()">新增</button>
+        <button type="button" class="btn btn-info" onclick="btn_edit()">编辑</button>
+        <button type="button" class="btn btn-danger" onclick="btn_delete()">删除</button>
+    </div>*@
+    <div class="col-lg-4">
+    </div>
+    <div class="col-lg-4">
+    </div>
+</div>
+
+<div class="row">
+
+    <div class="col-lg-12">
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+</div>
+
+
+<script>
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+    $(document).ready(function () {
+        GetGrid();
+    });
+    //搜索
+    function btn_Search() {
+        var keywords = "";
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "/ProductCal/GridProductCalListJson?keywords=" + $("#keywords").val(), page: 1
+        }).trigger('reloadGrid');
+    }
+    //加载表格
+    function GetGrid() {
+        //alert(123);
+        var SelectRowIndx;
+        $("#gridTable").jqGrid({
+            url: "/ProductCal/GridProductCalListJson",
+            datatype: "json",
+            height: $(window).height(),
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'calid', index: 'calid', width: 80, align: 'left', hidden: true },
+                { label: '客户', name: 'customer', index: 'customer', width: 100, align: 'left' },
+                { label: '产品名称', name: 'partname', index: 'partname', width: 200, align: 'left' },
+                { label: '本厂编号', name: 'productno', index: 'productno', width: 200, align: 'left' },
+                { label: '特性', name: 'feature', index: 'feature', width: 200, align: 'left' },
+                { label: '控制图类型', name: 'picturetype', index: 'picturetype', width: 200, align: 'left' },
+                { label: '控制项目', name: 'caltype', index: 'caltype', width: 200, align: 'left' },
+                { label: '初始Ppk/Pp', name: 'startppk', index: 'startppk', width: 80, align: 'left' },
+                { label: 'XBar平均值', name: 'xaverage', index: 'xaverage', width: 80, align: 'left' },
+                { label: 'XBar下控制限', name: 'xlowlimit', index: 'xlowlimit', width: 80, align: 'left' },
+                { label: 'XBar上控制限', name: 'xupperlimit', index: 'xupperlimit', width: 80, align: 'left' },
+                { label: 'XBar中位线', name: 'xcenterline', index: 'xcenterline', width: 80, align: 'left' },
+                { label: 'R平均值', name: 'raverage', index: 'raverage', width: 80, align: 'left' },
+                { label: 'R下控制限', name: 'rlowlimit', index: 'rlowlimit', width: 80, align: 'left' },
+                { label: 'R上控制限', name: 'rupperlimit', index: 'rupperlimit', width: 80, align: 'left' },
+                { label: 'R中位线', name: 'rcenterline', index: 'rcenterline', width: 80, align: 'left' },
+                { label: '抽样频次', name: 'groupnum', index: 'groupnum', width: 80, align: 'left' },
+                { label: '公差范围', name: 'tolerance', index: 'tolerance', width: 80, align: 'left' },
+            ],
+            altRows: true,//单双行样式不同
+            altclass: 'differ',
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'calid',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            multiselect: false,
+            //双击事件
+            ondblClickRow: function (RowIndx) {
+                var rowData = $(this).jqGrid('getRowData', RowIndx);
+                AjaxJson("/ProductCal/InsertCalRecord", { CalID: rowData.calid }, function (data) {
+                    parent.windowload();
+                    parent.layer.close(index);
+                });
+                //parent.windowload();
+                //parent.layer.close(index);
+
+            },
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            }
+        });
+        //columnModelData("#gridTable");
+        //自应高度
+        $(window).resize(function () {
+            $("#gridTable").setGridHeight($(window).height() - 178);
+        });
+
+    }
+
+    function AcceptClick()
+    {
+        var KeyValue = GetJqGridRowValue("#gridTable", "calid");
+        if (IsChecked(KeyValue)) {
+            AjaxJson("/ProductCal/InsertCalRecord", { CalID: KeyValue }, function (data) {
+                parent.windowload();
+                parent.layer.close(index);
+            });
+
+        }
+    }
+
+</script>

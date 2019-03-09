@@ -1,0 +1,99 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<link href="~/Scripts/datepicker/plugins.css" rel="stylesheet" />
+<script src="~/Scripts/datepicker/bootstrap-datetimepicker.js"></script>
+
+<script type="text/javascript">
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+    $(function () {
+
+        //加载下拉框
+        BindCompany();
+        InitControl();
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/Alarm/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/Alarm/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                parent.windowload();
+                parent.layer.close(index);
+            });
+        }, 200);
+    }
+
+
+       
+
+    function BindCompany() {
+       
+        $("#CompanyID").html("");
+
+       // $("#CompanyID").append("<option value=''>==请选择==</option>");
+        AjaxJson("/Department/CompanyJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#CompanyID").append($("<option></option>").val(DataJson[i].departmentid).html(DataJson[i].departmentname));
+            });
+        })
+    }
+
+</script>
+
+
+<form id="form1">
+    <ul id="myTab" class="nav nav-tabs">
+        <li class="active">
+            <a href="#basic" data-toggle="tab">
+                报警信息
+            </a>
+        </li>
+       
+    </ul>
+    <div id="myTabContent" class="tab-content">
+        <div class="tab-pane fade in active" id="basic">
+            <table class="table table-bordered">
+
+                <tr>
+                    <th class="formTitle">报警名称：</th>
+                    <td class="formValue" colspan="1">
+                        <input id="AlarmName" class="txt" datacol="yes" err="客户" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle">报警时间(min)</th>
+                    <td class="formValue" colspan="1">
+                        <input id="AlarmTime" class="txt" datacol="yes" err="报警时间" checkexpession="NotNull" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">所属公司：</th>
+                    <td class="formValue" colspan="1">
+                        <select id="CompanyID" class="txtselect" datacol="yes" err="所属公司" checkexpession="NotNull"></select>
+                    </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue" colspan="1"></td>
+                </tr>
+            </table>
+        </div>
+       
+    </div>
+
+</form>

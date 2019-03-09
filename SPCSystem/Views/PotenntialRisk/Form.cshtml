@@ -1,0 +1,131 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<link href="~/Scripts/datepicker/plugins.css" rel="stylesheet" />
+<script src="~/Scripts/datepicker/bootstrap-datetimepicker.js"></script>
+
+<script type="text/javascript">
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+    $(function () {
+
+        //加载下拉框
+        BindCompany();
+        InitControl();
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/PotenntialRisk/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/PotenntialRisk/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                parent.windowload();
+                parent.layer.close(index);
+            });
+        }, 200);
+    }
+
+
+
+
+    function BindCompany() {
+
+        $("#CompanyID").html("");
+
+       // $("#CompanyID").append("<option value=''>==请选择==</option>");
+        AjaxJson("/Department/CompanyJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#CompanyID").append($("<option></option>").val(DataJson[i].departmentid).html(DataJson[i].departmentname));
+            });
+        })
+
+        $("#DepartmentID").html("");
+
+        $("#DepartmentID").append("<option value=''>==请选择==</option>");
+        AjaxJson("/Department/DepartmentJson", { CompanyID: $("#CompanyID").val() }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#DepartmentID").append($("<option></option>").val(DataJson[i].departmentid).html(DataJson[i].departmentname));
+            });
+        })
+    }
+
+</script>
+
+
+<form id="form1">
+    <ul id="myTab" class="nav nav-tabs">
+        <li class="active">
+            <a href="#basic" data-toggle="tab">
+                报警信息
+            </a>
+        </li>
+
+    </ul>
+    <div id="myTabContent" class="tab-content">
+        <div class="tab-pane fade in active" id="basic">
+            <table class="table table-bordered">
+
+                <tr>
+                    <th class="formTitle">开始时间：</th>
+                    <td class="formValue" colspan="1">
+                        <input id="StartDate" class="txt" datacol="yes" err="开始时间" onfocus="WdatePicker()" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle">结束时间</th>
+                    <td class="formValue" colspan="1">
+                        <input id="EndDate" class="txt" datacol="yes" err="结束时间" onfocus="WdatePicker()" checkexpession="NotNull" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">潜在风险：</th>
+                    <td class="formValue" colspan="3">
+                        <input id="PotentialContent" class="txt" datacol="yes" err="潜在风险" checkexpession="NotNull" />
+                    </td>
+
+                </tr>
+                <tr>
+                    <th class="formTitle">失效后果：</th>
+                    <td class="formValue" colspan="3">
+                        <input id="FailureEffect" class="txt" datacol="yes" err="失效后果" checkexpession="NotNull" />
+                    </td>
+
+                </tr>
+                <tr>
+                    <th class="formTitle">应对措施：</th>
+                    <td class="formValue" colspan="3">
+                        <input id="Action" class="txt" datacol="yes" err="应对措施" checkexpession="NotNull" />
+                    </td>
+
+                </tr>
+
+                <tr>
+                    <th class="formTitle">所属公司：</th>
+                    <td class="formValue" colspan="1">
+                        <select id="CompanyID" class="txtselect" datacol="yes" err="所属公司" checkexpession="NotNull"></select>
+                    </td>
+                    <th class="formTitle">所属产线</th>
+                    <td class="formValue" colspan="1">
+                        <select id="DepartmentID" class="txtselect" datacol="yes" err="所属产线" checkexpession="NotNull"></select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+
+</form>

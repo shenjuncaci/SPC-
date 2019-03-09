@@ -1,0 +1,33 @@
+﻿
+@{
+    ViewBag.Title = "DataInput";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+
+<div class="form-group">
+    <label for="exampleInputEmail1">请输入本次检测到的数据</label>
+    <input type="text" class="form-control" id="inputNum" placeholder="请输入数字">
+    <small id="emailHelp" class="form-text text-muted">数据最大支持两位小数，</small>
+</div>
+
+
+<script>
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+    function AcceptClick() {
+        if ($("#inputNum").val() == "" || $("#inputNum").val() == undefined || $("#inputNum").val() == null)
+        {
+            layer.alert('请输入数量', { icon: 6 });
+            return false;
+        }
+        var KeyValue = GetQuery("ProductCalID");
+        if (IsChecked(KeyValue)) {
+            AjaxJson("/ProductCal/InsertInputData", { ProductCalID: KeyValue, Num: $("#inputNum").val() }, function (data) {
+                //console.log(data.Message);
+                //layer.tips('登录账户不能为空', '#txtaccount');
+                parent.layer.alert(data.Message, { icon: 6 });
+                parent.layer.close(index);
+            });
+
+        }
+    }
+</script>

@@ -1,0 +1,137 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<br>
+<div class="row">
+    <div class="col-lg-2">
+        <input class="form-control" id="keywords" placeholder="可根据报警名称进行搜索">
+    </div>
+    <div class="col-lg-2">
+        <button type="button" class="btn btn-info" onclick="btn_Search()">查询</button>
+    </div>
+    <div class="col-lg-8">
+
+    </div>
+    <div class="col-lg-4">
+        <button type="button" class="btn btn-info" onclick="btn_add()">新增</button>
+        <button type="button" class="btn btn-info" onclick="btn_edit()">编辑</button>
+        <button type="button" class="btn btn-danger" onclick="btn_delete()">删除</button>
+    </div>
+    <div class="col-lg-4">
+    </div>
+    <div class="col-lg-4">
+    </div>
+</div>
+
+<div class="row">
+
+    <div class="col-lg-12">
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        GetGrid();
+    });
+    //搜索
+    function btn_Search() {
+        var keywords = "";
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "/PotenntialRisk/GridPageListJson?keywords="+$("#keywords").val(), page: 1
+        }).trigger('reloadGrid');
+    }
+    //加载表格
+    function GetGrid() {
+        //alert(123);
+        var SelectRowIndx;
+        $("#gridTable").jqGrid({
+            url: "/PotenntialRisk/GridPageListJson",
+            datatype: "json",
+            height: $(window).height() - 268,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'potentialid', index: 'potentialid', width: 80, align: 'left', hidden: true },
+                { label: '开始时间', name: 'startdate', index: 'startdate', width: 100, align: 'left', formatter: dateFormat },
+                { label: '结束时间', name: 'enddate', index: 'enddate', width: 100, align: 'left', formatter: dateFormat },
+                { label: '潜在风险', name: 'potentialcontent', index: 'potentialcontent', width: 200, align: 'left' },
+                { label: '失效后果', name: 'failureeffect', index: 'failureeffect', width: 200, align: 'left' },
+                { label: '应对措施', name: 'action', index: 'action', width: 200, align: 'left' }
+            ],
+            altRows: true,//单双行样式不同
+            altclass: 'differ',
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'startdate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            multiselect: false,
+            //cellattr: addCellAttr,
+
+            // useColSpanStyle:true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                //LoadViewList();
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            }
+        });
+        //columnModelData("#gridTable");
+        //自应高度
+        $(window).resize(function () {
+            $("#gridTable").setGridHeight($(window).height() - 178);
+        });
+
+    }
+
+
+
+    //新增
+    function btn_add() {
+        var url = "/PotenntialRisk/Form"
+        layerDialog(url, '新增', 900, 600);
+
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "potentialid");
+        if (IsChecked(KeyValue)) {
+            var url = "/PotenntialRisk/Form?KeyValue=" + KeyValue;
+            layerDialog(url, '编辑', 900, 600);
+
+        }
+    }
+
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "potentialid");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/PotenntialRisk/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+    }
+
+    function dateFormat(cellvalue, options, rowObject) {
+        if (cellvalue == "0001-01-01T00:00:00" || cellvalue == null) {
+            return "";
+        }
+        else {
+            return String(cellvalue).substring(0, 10);
+        }
+    }
+</script>
+
