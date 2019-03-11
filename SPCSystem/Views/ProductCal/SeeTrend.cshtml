@@ -104,6 +104,16 @@
     <div class="col-lg-10" id="FaultTable"></div>
     <div class="col-lg-1"></div>
 </div>
+    <div class="row">
+        <div class="col-lg-1"></div>
+        <div class="col-lg-10">潜在风险分析</div>
+        <div class="col-lg-1"></div>
+    </div>
+    <div class="row">
+        <div class="col-lg-1"></div>
+        <div class="col-lg-10" id="PotentialRiskTable"></div>
+        <div class="col-lg-1"></div>
+    </div>
 </div>
 
 <script>
@@ -145,6 +155,7 @@
         
         SetDetailTable();
         SetFaultTable();
+        SetPosentialRiskTable();
         
     })
 
@@ -547,6 +558,24 @@
         });
     }
 
+    function SetPosentialRiskTable()
+    {
+        $.ajax({
+            type: "post",
+            dataType: "text",
+            url: RootPath()+"/ProductCal/PotentialRiskTable",
+            data: {
+                ProductCalID: GetQuery("ProductCalID"),
+                StartDate: $("#startDate").val(),
+                EndDate: $("#endDate").val()
+            },
+            async: false,
+            success: function (data) {
+                //console.log(data);
+                document.getElementById("PotentialRiskTable").innerHTML = data;
+            }
+        });
+    }
     //导出为图片功能,扩大两倍，清晰
     function AcceptClick()
     {

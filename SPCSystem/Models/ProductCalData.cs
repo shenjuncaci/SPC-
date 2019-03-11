@@ -14,6 +14,6 @@ namespace SPCSystem
         public string ProductDataID { get; set; }
         public string ProductCalDID { get; set; }
         public string ProductCalID { get; set; }
-        public decimal InputValue { get; set; }
+        public double InputValue { get; set; }
     }
 }

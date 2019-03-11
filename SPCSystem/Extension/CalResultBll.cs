@@ -37,7 +37,7 @@ namespace SPCSystem
 ProductID in (select ProductID from CalMethod where CalID in (select CalID from ProductCal where ProductCalID='{0}'))";
                 sqlCheckNum = string.Format(sqlCheckNum, ProductCalID);
                 List<CalCriterion> listCheckNum = reCriterion.FindListBySql(sqlCheckNum);
-                if(listCheckNum.Count()==0)
+                if (listCheckNum.Count() == 0)
                 {
                     return "请先在基础数据中维护需要检测的项目。";
                 }
@@ -51,7 +51,7 @@ ProductID in (select ProductID from CalMethod where CalID in (select CalID from 
                 bool check6 = false;
                 bool check7 = false;
                 bool check8 = false;
-                if(listCheckNum.Find(x=>x.CriterionNo=="001")!=null)
+                if (listCheckNum.Find(x => x.CriterionNo == "001") != null)
                 {
                     check1 = true;
                 }
@@ -103,7 +103,7 @@ order by b.StartDate desc";
                 //小于3只需要判断case1
                 if (list.Count < 3)
                 {
-                    if (Case1(list, ProductCalID,check1) == -1)
+                    if (Case1(list, ProductCalID, check1) == -1)
                     {
                         return "-1";
                     }
@@ -114,15 +114,15 @@ order by b.StartDate desc";
                 }
                 else
                 {
-                    if(list.Count>=3&&list.Count<5)
+                    if (list.Count >= 3 && list.Count < 5)
                     {
                         //判断case1+case5
-                        return Case1(list, ProductCalID, check1) + ":" + Case5(list, ProductCalID,check5);
+                        return Case1(list, ProductCalID, check1) + ":" + Case5(list, ProductCalID, check5);
                     }
-                    else if(list.Count>=5&&list.Count<6)
+                    else if (list.Count >= 5 && list.Count < 6)
                     {
                         //判断case1+case5+case6
-                        return Case1(list, ProductCalID,check1) + ":" + Case5(list, ProductCalID, check5) +":"+Case6(list,ProductCalID, check6);
+                        return Case1(list, ProductCalID, check1) + ":" + Case5(list, ProductCalID, check5) + ":" + Case6(list, ProductCalID, check6);
                     }
                     else if (list.Count >= 6 && list.Count < 7)
                     {
@@ -130,7 +130,7 @@ order by b.StartDate desc";
                         int case1 = Case1(list, ProductCalID, check1);
                         int case3 = Case3(list, ProductCalID, check3);
                         int case5 = Case5(list, ProductCalID, check5);
-                        return case1.ToString() + ":" + case3.ToString()+":"+case5.ToString() + ":" + Case6(list, ProductCalID, check6);
+                        return case1.ToString() + ":" + case3.ToString() + ":" + case5.ToString() + ":" + Case6(list, ProductCalID, check6);
 
                     }
                     else
@@ -143,15 +143,15 @@ order by b.StartDate desc";
                             int IsSameDirection = Case2(list, ProductCalID, check2);
                             return IsIn.ToString() + ":" + IsSameDirection.ToString() + ":" + IsContinous.ToString() + ":" + Case5(list, ProductCalID, check5) + ":" + Case6(list, ProductCalID, check6);
                         }
-                        else if(list.Count >= 8 && list.Count < 14)
+                        else if (list.Count >= 8 && list.Count < 14)
                         {
                             //判断case1+case2+case3+5+6+8
                             return Case1(list, ProductCalID, check1) + ":" + Case2(list, ProductCalID, check2) + ":" + Case3(list, ProductCalID, check3) + ":" + Case5(list, ProductCalID, check5) + ":" + Case6(list, ProductCalID, check6) + ":" + Case8(list, ProductCalID, check8);
                         }
-                        else if(list.Count == 14)
+                        else if (list.Count == 14)
                         {
                             // //判断case1+case2+case3+4+5+6+8
-                            return Case1(list, ProductCalID, check1) + ":" + Case2(list, ProductCalID, check2) + ":" + Case3(list, ProductCalID, check3) + ":"+Case4(list,ProductCalID, check4) +":" + Case5(list, ProductCalID, check5) + ":" + Case6(list, ProductCalID, check6) + ":" + Case8(list, ProductCalID, check8);
+                            return Case1(list, ProductCalID, check1) + ":" + Case2(list, ProductCalID, check2) + ":" + Case3(list, ProductCalID, check3) + ":" + Case4(list, ProductCalID, check4) + ":" + Case5(list, ProductCalID, check5) + ":" + Case6(list, ProductCalID, check6) + ":" + Case8(list, ProductCalID, check8);
                         }
                         else
                         {
@@ -177,7 +177,7 @@ order by b.StartDate desc";
         /// </summary>
         /// <param name="list"></param>
         /// <returns></returns>
-        public int Case1(List<CheckFaultDTO> list, string ProductCalID,bool IsCheck)
+        public int Case1(List<CheckFaultDTO> list, string ProductCalID, bool IsCheck)
         {
             if (IsCheck == false)
             {
@@ -196,7 +196,7 @@ order by b.StartDate desc";
                 entity.CreateDate = DateTime.Now;
                 entity.CreatrBy = ManageProvider.Provider.Current().UserName;
                 FaultRe.Insert(entity);
-                result = - 1;
+                result = -1;
             }
             if (list[0].rValue > list[0].RUpperLimit || list[0].xValue < list[0].RLowLimit)
             {
@@ -210,7 +210,7 @@ order by b.StartDate desc";
                 entity.CreateDate = DateTime.Now;
                 entity.CreatrBy = ManageProvider.Provider.Current().UserName;
                 FaultRe.Insert(entity);
-                result = - 1;
+                result = -1;
             }
             //else
             //{
@@ -225,7 +225,7 @@ order by b.StartDate desc";
         /// <param name="list"></param>
         /// <param name="ProductCalID"></param>
         /// <returns></returns>
-        public int Case3(List<CheckFaultDTO> list,string ProductCalID, bool IsCheck)
+        public int Case3(List<CheckFaultDTO> list, string ProductCalID, bool IsCheck)
         {
             if (IsCheck == false)
             {
@@ -243,7 +243,7 @@ order by b.StartDate desc";
                 entity.CreateDate = DateTime.Now;
                 entity.CreatrBy = ManageProvider.Provider.Current().UserName;
                 FaultRe.Insert(entity);
-                result=-3;
+                result = -3;
             }
             if (list[0].xValue > list[1].xValue && list[1].xValue > list[2].xValue && list[2].xValue > list[3].xValue && list[3].xValue > list[4].xValue && list[4].xValue > list[5].xValue)
             {
@@ -256,7 +256,7 @@ order by b.StartDate desc";
                 entity.CreateDate = DateTime.Now;
                 entity.CreatrBy = ManageProvider.Provider.Current().UserName;
                 FaultRe.Insert(entity);
-                result=- 3;
+                result = -3;
             }
             if (list[0].rValue < list[1].rValue && list[1].rValue < list[2].rValue && list[2].rValue < list[3].rValue && list[3].rValue < list[4].rValue && list[4].rValue < list[5].rValue)
             {
@@ -269,7 +269,7 @@ order by b.StartDate desc";
                 entity.CreateDate = DateTime.Now;
                 entity.CreatrBy = ManageProvider.Provider.Current().UserName;
                 FaultRe.Insert(entity);
-                result=- 3;
+                result = -3;
             }
             if (list[0].rValue > list[1].rValue && list[1].rValue > list[2].rValue && list[2].rValue > list[3].rValue && list[3].rValue > list[4].xValue && list[4].rValue > list[5].rValue)
             {
@@ -282,7 +282,7 @@ order by b.StartDate desc";
                 entity.CreateDate = DateTime.Now;
                 entity.CreatrBy = ManageProvider.Provider.Current().UserName;
                 FaultRe.Insert(entity);
-                result=- 3;
+                result = -3;
             }
             return result;
         }
@@ -292,7 +292,7 @@ order by b.StartDate desc";
         /// <param name="list"></param>
         /// <param name="ProductCalID"></param>
         /// <returns></returns>
-        public int Case2(List<CheckFaultDTO> list,string ProductCalID, bool IsCheck)
+        public int Case2(List<CheckFaultDTO> list, string ProductCalID, bool IsCheck)
         {
             if (IsCheck == false)
             {
@@ -301,9 +301,9 @@ order by b.StartDate desc";
             int result = 0;
             //1表示上侧-1表示下侧
             int AboveOrBelow = 0;
-            if(list[0].xValue>list[0].XCenterLine)
+            if (list[0].xValue > list[0].XCenterLine)
             {
-                AboveOrBelow=1;
+                AboveOrBelow = 1;
                 for (int i = 1; i < 7; i++)
                 {
                     if (list[i].xValue <= list[0].XCenterLine)
@@ -314,10 +314,10 @@ order by b.StartDate desc";
                     else
                     {
                         //AboveOrBelow = 1;
-                        
+
                     }
                 }
-                if(AboveOrBelow==1)
+                if (AboveOrBelow == 1)
                 {
                     // 表示全部在中心线的上侧
                     CalFault entity = new CalFault();
@@ -332,9 +332,9 @@ order by b.StartDate desc";
                     result = -2;
                 }
             }
-            else if(list[0].xValue<list[0].XCenterLine)
+            else if (list[0].xValue < list[0].XCenterLine)
             {
-                AboveOrBelow=-1;
+                AboveOrBelow = -1;
                 for (int i = 1; i < 7; i++)
                 {
                     if (list[i].xValue >= list[0].XCenterLine)
@@ -344,10 +344,10 @@ order by b.StartDate desc";
                     }
                     else
                     {
-                        
+
                     }
                 }
-                if(AboveOrBelow==-1)
+                if (AboveOrBelow == -1)
                 {
                     // 表示全部在中心线的上侧
                     CalFault entity = new CalFault();
@@ -379,10 +379,10 @@ order by b.StartDate desc";
                     else
                     {
                         // 表示全部在中心线的上侧
-                        
+
                     }
                 }
-                if(AboveOrBelow==1)
+                if (AboveOrBelow == 1)
                 {
                     CalFault entity = new CalFault();
                     entity.CalFaultID = CommonHelper.GetGuid;
@@ -409,7 +409,7 @@ order by b.StartDate desc";
                     else
                     {
                         // 表示全部在中心线的上侧
-                       
+
                     }
                 }
                 if (AboveOrBelow == -1)
@@ -432,8 +432,8 @@ order by b.StartDate desc";
             }
 
             return result;
-            
-            
+
+
         }
         /// <summary>
         /// 判断连续14点是否交替上下
@@ -441,7 +441,7 @@ order by b.StartDate desc";
         /// <param name="list"></param>
         /// <param name="ProductCalID"></param>
         /// <returns></returns>
-        public int Case4(List<CheckFaultDTO> list,string ProductCalID, bool IsCheck)
+        public int Case4(List<CheckFaultDTO> list, string ProductCalID, bool IsCheck)
         {
             if (IsCheck == false)
             {
@@ -450,7 +450,7 @@ order by b.StartDate desc";
             int result = 0;
             //判断下一次判断是大于还是小于
             bool Next = true;
-            if(list[0].xValue>list[1].xValue)
+            if (list[0].xValue > list[1].xValue)
             {
                 Next = false;
                 result = -4;
@@ -468,7 +468,7 @@ order by b.StartDate desc";
             { }
             else
             {
-                for(int i=1;i<12;i++)
+                for (int i = 1; i < 12; i++)
                 {
                     if (Next == false)
                     {
@@ -495,7 +495,7 @@ order by b.StartDate desc";
                         }
                     }
                 }
-                if(result==-4)
+                if (result == -4)
                 {
                     CalFault entity = new CalFault();
                     entity.CalFaultID = CommonHelper.GetGuid;
@@ -507,8 +507,8 @@ order by b.StartDate desc";
                     entity.CreatrBy = ManageProvider.Provider.Current().UserName;
                     FaultRe.Insert(entity);
                 }
-                
-             }
+
+            }
 
             //判断R
             if (list[0].rValue > list[1].rValue)
@@ -588,12 +588,12 @@ order by b.StartDate desc";
             int result = 0;
             int temp = 0;
             decimal XupAverage = list[0].XUpperLimit;
-            decimal XlowAverage= list[0].XLowLimit;
-            if(list[0].xValue>XupAverage)
+            decimal XlowAverage = list[0].XLowLimit;
+            if (list[0].xValue > XupAverage)
             {
                 temp = temp + 1;
             }
-            if(list[1].xValue > XupAverage)
+            if (list[1].xValue > XupAverage)
             {
                 temp = temp + 1;
             }
@@ -601,7 +601,7 @@ order by b.StartDate desc";
             {
                 temp = temp + 1;
             }
-            if(temp>=2)
+            if (temp >= 2)
             {
                 CalFault entity = new CalFault();
                 entity.CalFaultID = CommonHelper.GetGuid;
@@ -706,7 +706,7 @@ order by b.StartDate desc";
         /// <param name="ProductCalID"></param>
         /// <returns></returns>
         /// 
-        public int Case6(List<CheckFaultDTO> list,string ProductCalID, bool IsCheck)
+        public int Case6(List<CheckFaultDTO> list, string ProductCalID, bool IsCheck)
         {
             if (IsCheck == false)
             {
@@ -736,7 +736,7 @@ order by b.StartDate desc";
             {
                 temp = temp + 1;
             }
-            if(temp>=4)
+            if (temp >= 4)
             {
                 CalFault entity = new CalFault();
                 entity.CalFaultID = CommonHelper.GetGuid;
@@ -862,7 +862,7 @@ order by b.StartDate desc";
         /// <param name="list"></param>
         /// <param name="ProductCalID"></param>
         /// <returns></returns>
-        public int Case7(List<CheckFaultDTO> list,string ProductCalID, bool IsCheck)
+        public int Case7(List<CheckFaultDTO> list, string ProductCalID, bool IsCheck)
         {
             if (IsCheck == false)
             {
@@ -872,15 +872,15 @@ order by b.StartDate desc";
             bool IsIn = true;
             decimal XupAverage = (list[0].XUpperLimit - list[0].XCenterLine) / 2;
             decimal XlowAverage = (list[0].XLowLimit - list[0].XCenterLine) / 2;
-            for (int i=0;i<15;i++)
+            for (int i = 0; i < 15; i++)
             {
-                if(list[i].xValue>XupAverage||list[i].xValue<XlowAverage)
+                if (list[i].xValue > XupAverage || list[i].xValue < XlowAverage)
                 {
                     IsIn = false;
                     break;
                 }
             }
-            if(IsIn==true)
+            if (IsIn == true)
             {
                 CalFault entity = new CalFault();
                 entity.CalFaultID = CommonHelper.GetGuid;
@@ -925,9 +925,9 @@ order by b.StartDate desc";
         /// <param name="list"></param>
         /// <param name="ProductCalID"></param>
         /// <returns></returns>
-        public int Case8(List<CheckFaultDTO> list,string ProductCalID, bool IsCheck)
+        public int Case8(List<CheckFaultDTO> list, string ProductCalID, bool IsCheck)
         {
-            if(IsCheck==false)
+            if (IsCheck == false)
             {
                 return 0;
             }
@@ -940,15 +940,15 @@ order by b.StartDate desc";
             decimal RupAverage = (list[0].RUpperLimit - list[0].RCenterLine) / 2;
             decimal RlowAverage = (list[0].RLowLimit - list[0].RCenterLine) / 2;
 
-            for(int i=0;i<8;i++)
+            for (int i = 0; i < 8; i++)
             {
-                if(list[i].xValue<XupAverage&&list[i].xValue>XlowAverage)
+                if (list[i].xValue < XupAverage && list[i].xValue > XlowAverage)
                 {
                     isIn = true;
                     break;
                 }
             }
-            if(isIn==false)
+            if (isIn == false)
             {
                 CalFault entity = new CalFault();
                 entity.CalFaultID = CommonHelper.GetGuid;
@@ -962,7 +962,7 @@ order by b.StartDate desc";
                 result = -8;
             }
             isIn = false;
-            for(int i=0;i<8;i++)
+            for (int i = 0; i < 8; i++)
             {
                 if (list[i].rValue < RupAverage && list[i].rValue > RlowAverage)
                 {
@@ -992,14 +992,14 @@ order by b.StartDate desc";
         /// <param name="StartDate"></param>
         /// <param name="EndDate"></param>
         /// <returns></returns>
-        public static string DetailTable(string ProductCalID,string StartDate,string EndDate, Repository<ProductCal> re)
+        public static string DetailTable(string ProductCalID, string StartDate, string EndDate, Repository<ProductCal> re)
         {
             string ResultTable = "<table class=\"table table-dark table-bordered\">";
             if (CommonHelper.IsEmpty(StartDate))
             {
                 StartDate = DateTime.Now.AddDays(-30).ToString();
             }
-            if(CommonHelper.IsEmpty(EndDate))
+            if (CommonHelper.IsEmpty(EndDate))
             {
                 EndDate = DateTime.Now.ToString();
             }
@@ -1021,35 +1021,35 @@ order by CONVERT(varchar(100), b.StartDate, 120)+'~'+CONVERT(varchar(100), b.End
             DataTable dtDate = re.FindTableBySql(sqlDate);
             string NameTemp = "";
             //标题列，日期
-            if (dtDate.Rows.Count>0)
+            if (dtDate.Rows.Count > 0)
             {
                 ResultTable += "<tr>";
                 NameTemp += "<tr>";
-                for (int i=0;i<dtDate.Rows.Count;i++)
+                for (int i = 0; i < dtDate.Rows.Count; i++)
                 {
-                    ResultTable += "<th>"+dtDate.Rows[i][0]+"</th>";
+                    ResultTable += "<th>" + dtDate.Rows[i][0] + "</th>";
                     NameTemp += "<th>" + dtDate.Rows[i][1] + "</th>";
                 }
                 ResultTable += "</tr>";
                 NameTemp += "</tr>";
             }
             ResultTable = ResultTable + NameTemp;
-            if (dtData.Rows.Count>0)
+            if (dtData.Rows.Count > 0)
             {
-                int GroupNum=Convert.ToInt32(dtData.Rows[0][0].ToString());
+                int GroupNum = Convert.ToInt32(dtData.Rows[0][0].ToString());
                 //按照groupnum进行循环，比如15条数据，groupnum=3，则循环5次
-                
-                for(int i=0;i<GroupNum;i++)
+
+                for (int i = 0; i < GroupNum; i++)
                 {
                     ResultTable += "<tr>";
                     for (int j = 0; j < dtData.Rows.Count / GroupNum; j++)
                     {
-                        ResultTable += "<td>" + dtData.Rows[i+j][2].ToString() + "</td>";
+                        ResultTable += "<td>" + dtData.Rows[i + j][2].ToString() + "</td>";
                     }
                     ResultTable += "</tr>";
-                   // ResultTable += "<td>" + dtData.Rows[i][2].ToString() + "</td>";
+                    // ResultTable += "<td>" + dtData.Rows[i][2].ToString() + "</td>";
                 }
-                
+
             }
             ResultTable += "</table>";
             return ResultTable;
@@ -1061,7 +1061,7 @@ order by CONVERT(varchar(100), b.StartDate, 120)+'~'+CONVERT(varchar(100), b.End
         /// <param name="ProductCalID"></param>
         /// <param name="re"></param>
         /// <returns></returns>
-        public static string DefaultDetailTable(string ProductCalID,Repository<ProductCal> re)
+        public static string DefaultDetailTable(string ProductCalID, Repository<ProductCal> re)
         {
             string ResultTable = "<table class=\"table table-dark table-bordered\">";
             string sqlData = @"select a.GroupNum,CONVERT(varchar(100), b.StartDate, 120)+'~'+CONVERT(varchar(100), b.EndDate, 8) as durdate,c.InputValue 
@@ -1125,7 +1125,7 @@ order by CONVERT(varchar(100), b.StartDate, 120)+'~'+CONVERT(varchar(100), b.End
         /// <param name="EndDate"></param>
         /// <param name="re"></param>
         /// <returns></returns>
-        public static string FaultTTable(string ProductCalID,string StartDate,string EndDate, Repository<ProductCal> re)
+        public static string FaultTTable(string ProductCalID, string StartDate, string EndDate, Repository<ProductCal> re)
         {
             string ResultTable = "<table class=\"table table-dark table-bordered\"><tr><th>检测时间</th><th>异常结果</th><th>异常来源</th><th>原因分析</th><th>改善措施</th><th>检测人</th><th>检测日期</th></tr>";
             if (CommonHelper.IsEmpty(StartDate))
@@ -1145,14 +1145,14 @@ where a.ProductCalID='{0}' and b.StartDate>='{1}' and b.StartDate<='{2}'
 order by CONVERT(varchar(100), b.StartDate, 120)+'~'+CONVERT(varchar(100), b.EndDate, 8)";
             sql = string.Format(sql, ProductCalID, StartDate, EndDate);
             DataTable dt = re.FindTableBySql(sql);
-            if(dt.Rows.Count>0)
+            if (dt.Rows.Count > 0)
             {
-                for(int i=0;i<dt.Rows.Count;i++)
+                for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     ResultTable += "<tr>";
-                    for(int j=0;j<dt.Columns.Count;j++)
+                    for (int j = 0; j < dt.Columns.Count; j++)
                     {
-                        ResultTable += "<td>"+dt.Rows[i][j].ToString()+"</td>";
+                        ResultTable += "<td>" + dt.Rows[i][j].ToString() + "</td>";
                     }
                     ResultTable += "</tr>";
                 }
@@ -1162,6 +1162,43 @@ order by CONVERT(varchar(100), b.StartDate, 120)+'~'+CONVERT(varchar(100), b.End
         }
 
         /// <summary>
+        /// 潜在风险拼接table
+        /// </summary>
+        /// <param name="ProductCalID"></param>
+        /// <param name="StartDate"></param>
+        /// <param name="EndDate"></param>
+        /// <param name="re"></param>
+        /// <returns></returns>
+        public static string PotentialRisk(string ProductCalID, string StartDate, string EndDate, Repository<ProductCal> re)
+        {
+            if (CommonHelper.IsEmpty(StartDate))
+            {
+                StartDate = DateTime.Now.AddDays(-30).ToString();
+            }
+            if (CommonHelper.IsEmpty(EndDate))
+            {
+                EndDate = DateTime.Now.ToString();
+            }
+            string ResultTable = "<table class=\"table table-dark table-bordered\"><tr><th>开始日期</th><th>结束日期</th><th>潜在风险</th><th>失效后果</th><th>改善措施</th></tr>";
+            string sql = @" select StartDate,EndDate,PotentialContent,FailureEffect,Action from PotentialRisk where 1=1 and DepartmentID in 
+(select DepartmentID from ProductCal where ProductCalID='{0}') and ((StartDate<='{1}' and EndDate>='{1}' ) or (startdate>='{1}' and startdate<='{2}') )  ";
+            sql = string.Format(sql, ProductCalID, StartDate, EndDate);
+            DataTable dt = re.FindTableBySql(sql);
+            if (dt.Rows.Count > 0)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    ResultTable += "<tr>";
+                    for (int j = 0; j < dt.Columns.Count; j++)
+                    {
+                        ResultTable += "<td>" + dt.Rows[i][j].ToString() + "</td>";
+                    }
+                    ResultTable += "</tr>";
+                }
+            }
+            return ResultTable;
+        }
+        /// <summary>
         /// 计算时间段内的CPK
         /// </summary>
         /// <param name="ProductCalID"></param>
@@ -1169,7 +1206,7 @@ order by CONVERT(varchar(100), b.StartDate, 120)+'~'+CONVERT(varchar(100), b.End
         /// <param name="EndDate"></param>
         /// <param name="re"></param>
         /// <returns></returns>
-        public static string CalCPK(string ProductCalID,string StartDate,string EndDate, Repository<ProductCal> re)
+        public static string CalCPK(string ProductCalID, string StartDate, string EndDate, Repository<ProductCal> re)
         {
             if (CommonHelper.IsEmpty(StartDate))
             {
@@ -1199,17 +1236,17 @@ order by StartDate ";
                 decimal xbarAverage = (decimal)dt.Compute("Avg(" + "xbar" + ")", "true");
 
                 decimal fenzi1 = Convert.ToDecimal(dt.Rows[0]["StandardUpperLimit"].ToString()) - xbarAverage;
-                if(fenzi1<0)
+                if (fenzi1 < 0)
                 {
                     fenzi1 = fenzi1 * -1;
                 }
-                decimal fenzi2 = xbarAverage-Convert.ToDecimal(dt.Rows[0]["StandardUpperLimit"].ToString()) ;
+                decimal fenzi2 = xbarAverage - Convert.ToDecimal(dt.Rows[0]["StandardUpperLimit"].ToString());
                 if (fenzi2 < 0)
                 {
                     fenzi2 = fenzi2 * -1;
                 }
                 decimal fenzi;
-                if(fenzi1>fenzi2)
+                if (fenzi1 > fenzi2)
                 {
                     fenzi = fenzi2;
                 }
@@ -1232,7 +1269,7 @@ order by StartDate ";
                 //    Data = dt,
                 //};
 
-                
+
             }
             return "0";
         }
@@ -1279,6 +1316,6 @@ order by StartDate ";
             }
         }
 
-        
+
     }
 }

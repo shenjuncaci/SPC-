@@ -877,8 +877,9 @@
                                     headData: _node.editOp.colData,
                                     url: _node.editOp.url,
                                     onRenderComplete: function (rowdatas) {
-                                        //console.log(rowdatas);
                                         _node.editOp.rowdatas = rowdatas;
+                                        //隐藏内部弹出窗口的添加、删除按钮
+                                        $("#jfgrid_toolbar_jfgird_select").css("display", "none");
                                     },
                                     onSelectRow: function (rowdata) {
                                         if (!!_node.editOp.callback) {
