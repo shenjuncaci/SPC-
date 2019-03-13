@@ -3,26 +3,24 @@
     ViewBag.Title = "Form";
     Layout = "~/Views/Shared/_LayoutIndex.cshtml";
 }
-
-<br>
+<div id="main" class="row">
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>设备线</label></div>
+    <div class="col-lg-2"><input id="Eqiupment" class="form-control" type="text" datacol="yes" err="设备线" checkexpession="NotNull" /></div>
+    <div class="col-lg-1" style="text-align:center;padding-top:8px"><label>测量工具</label></div>
+    <div class="col-lg-2"><input id="CalTool" class="form-control" type="text" datacol="yes" err="测量工具" checkexpession="NotNull" /></div>
+    <div class="col-lg-2" style="text-align:center;padding-top:8px"><label>数据精度（小数位数）</label></div>
+    <div class="col-lg-2"><input id="DataAcc" class="form-control" type="text" datacol="yes" err="数据精度" checkexpession="NumOrNull" /></div>
+    <div class="col-lg-2"></div>
+</div>
 <div class="row">
-    <div class="col-lg-2">
-        <input class="form-control" id="keywords" placeholder="可根据零件名称本厂编号进行搜索">
+    <div class="col-lg-3">
+        <input class="form-control" id="keywords" placeholder="可根据零件名称、本厂编号进行搜索">
     </div>
     <div class="col-lg-2">
         <button type="button" class="btn btn-info" onclick="btn_Search()">查询</button>
     </div>
-    <div class="col-lg-8">
+    <div class="col-lg-7">
 
-    </div>
-    @*<div class="col-lg-4">
-        <button type="button" class="btn btn-info" onclick="btn_add()">新增</button>
-        <button type="button" class="btn btn-info" onclick="btn_edit()">编辑</button>
-        <button type="button" class="btn btn-danger" onclick="btn_delete()">删除</button>
-    </div>*@
-    <div class="col-lg-4">
-    </div>
-    <div class="col-lg-4">
     </div>
 </div>
 
@@ -49,12 +47,11 @@
     }
     //加载表格
     function GetGrid() {
-        //alert(123);
         var SelectRowIndx;
         $("#gridTable").jqGrid({
             url: "/ProductCal/GridProductCalListJson",
             datatype: "json",
-            height: $(window).height(),
+            height: $(window).height()-200,
             autowidth: true,
             colModel: [
                 { label: '主键', name: 'calid', index: 'calid', width: 80, align: 'left', hidden: true },
@@ -90,8 +87,11 @@
             multiselect: false,
             //双击事件
             ondblClickRow: function (RowIndx) {
+                if (!CheckDataValid('#main')) {
+                    return false;
+                }
                 var rowData = $(this).jqGrid('getRowData', RowIndx);
-                AjaxJson("/ProductCal/InsertCalRecord", { CalID: rowData.calid }, function (data) {
+                AjaxJson("/ProductCal/InsertCalRecord", { CalID: rowData.calid, Eqiupment: $("#Eqiupment").val(), CalTool: $("#CalTool").val(), DataAcc: $("#DataAcc").val() }, function (data) {
                     parent.windowload();
                     parent.layer.close(index);
                 });
@@ -116,9 +116,12 @@
 
     function AcceptClick()
     {
+        if (!CheckDataValid('#main')) {
+            return false;
+        }
         var KeyValue = GetJqGridRowValue("#gridTable", "calid");
         if (IsChecked(KeyValue)) {
-            AjaxJson("/ProductCal/InsertCalRecord", { CalID: KeyValue }, function (data) {
+            AjaxJson("/ProductCal/InsertCalRecord", { CalID: KeyValue, Eqiupment: $("#Eqiupment").val(), CalTool: $("#CalTool").val(), DataAcc: $("#DataAcc").val() }, function (data) {
                 parent.windowload();
                 parent.layer.close(index);
             });

@@ -37,7 +37,7 @@ namespace SPCSystem.Controllers
                 Stopwatch watch = CommonHelper.TimerStart();
                 StringBuilder strSql = new StringBuilder();
                 List<DbParameter> parameter = new List<DbParameter>();
-                strSql.AppendFormat(@" select * from ProductCal where 1=1 and  DepartmentID='{0}'  ", ManageProvider.Provider.Current().DepartmentId);
+                strSql.AppendFormat(@" select * from ProductCal where 1=1 and  DepartmentID='{0}'  ",ManageProvider.Provider.Current().DepartmentId);
                 if (!CommonHelper.IsEmpty(keywords))
                 {
                     strSql.AppendFormat(@" and (partname like '%{0}%' or productno like '%{0}%') ", keywords);
@@ -47,7 +47,7 @@ namespace SPCSystem.Controllers
                 {
                     strSql.AppendFormat(@" and CompanyID='{0}' ", ManageProvider.Provider.Current().CompanyId);
                 }
-                if (ManageProvider.Provider.Current().IsCompanySystem == false)
+                if(ManageProvider.Provider.Current().IsCompanySystem==false)
                 {
                     strSql.AppendFormat(@" and DepartmentID='{0}' ", ManageProvider.Provider.Current().DepartmentId);
                 }
@@ -66,7 +66,6 @@ namespace SPCSystem.Controllers
             }
             catch (Exception ex)
             {
-                //Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
                 return null;
             }
         }
@@ -89,10 +88,8 @@ namespace SPCSystem.Controllers
                 {
                     strSql.AppendFormat(@" and (partname like '%{0}%' or productno like '%{0}%') ", keywords);
                 }
-                strSql.AppendFormat(@" and a.departmentid='{0}' ", ManageProvider.Provider.Current().DepartmentId);
-
+                strSql.AppendFormat(@" and a.CompanyID='{0}' ", ManageProvider.Provider.Current().CompanyId);
                 DataTable ListData = Productre.FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
-
                 var JsonData = new
                 {
                     total = jqgridparam.total,
@@ -105,33 +102,30 @@ namespace SPCSystem.Controllers
             }
             catch (Exception ex)
             {
-                //Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
                 return null;
             }
         }
 
 
         [HttpPost]
-        public ActionResult InsertCalRecord(string CalID)
+        public ActionResult InsertCalRecord(string CalID, string Eqiupment, string CalTool,string DataAcc)
         {
             try
             {
-
                 StringBuilder strsql = new StringBuilder();
                 strsql.AppendFormat(@" insert into ProductCal
 select NEWID(),PartName,ProductNO,Feature,a.PictureType,a.Customer,b.CalID,
 b.GroupNum,b.StartPPK,b.StandardLowLimit,b.StandardUpperLimit,b.StandardCenterLine,b.XLowLimit,b.XUpperLimit,b.XAverage,b.XCenterLine,
-b.RAverage,b.RLowLimit,b.RUpperLimit,b.RCenterLine,b.Tolerance,'{0}',GETDATE(),'{1}',b.CalType,'{3}'
+b.RAverage,b.RLowLimit,b.RUpperLimit,b.RCenterLine,b.Tolerance,'{0}',GETDATE(),'{1}',b.CalType,'{3}','{4}','{5}','{6}'
 from product a left join CalMethod b on a.ProductID=b.ProductID where 1=1 and b.Calid='{2}'   "
-                    , ManageProvider.Provider.Current().UserId, ManageProvider.Provider.Current().DepartmentId, CalID, ManageProvider.Provider.Current().CompanyId);
+                    , ManageProvider.Provider.Current().UserId, ManageProvider.Provider.Current().DepartmentId, CalID,ManageProvider.Provider.Current().CompanyId,
+                    Eqiupment,CalTool,DataAcc);
                 ProductCalre.ExecuteBySql(strsql);
 
                 return Content(new JsonMessage { Success = true, Code = "1", Message = "添加成功" }.ToString());
             }
             catch (Exception ex)
             {
-                //database.Rollback();
-                //database.Close();
                 return Content(new JsonMessage { Success = false, Code = "-1", Message = "操作失败：" + ex.Message }.ToString());
             }
         }
@@ -145,7 +139,7 @@ from product a left join CalMethod b on a.ProductID=b.ProductID where 1=1 and b.
             string sql = " select GroupNum from dbo.ProductCal a where exists (select * from dbo.ProductCalDetail where State='进行中' and ProductCalID=a.ProductCalID) and  ProductCalID='{0}' ";
             sql = string.Format(sql, ProductCalID);
             DataTable dt = ProductCalre.FindTableBySql(sql);
-            if (dt.Rows.Count > 0)
+            if(dt.Rows.Count>0)
             {
                 //表示有正在进行中的检测，可以点击数据录入，结束检测，不能点击开始检测
                 return "0";
@@ -163,9 +157,9 @@ from product a left join CalMethod b on a.ProductID=b.ProductID where 1=1 and b.
         /// <returns></returns>
         public string InsertOneTest(string ProductCalID)
         {
-            string sql = string.Format(" select * from dbo.ProductCalDetail where State='进行中' and ProductCalID='{0}' ", ProductCalID);
+            string sql = string.Format(" select * from dbo.ProductCalDetail where State='进行中' and ProductCalID='{0}' ",ProductCalID);
             DataTable dt = ProductCalre.FindTableBySql(sql);
-            if (dt.Rows.Count > 0)
+            if(dt.Rows.Count>0)
             {
                 //表示已经有在进行中的检测，当前状态不允许再新开一条检测
                 return "0";
@@ -183,7 +177,7 @@ from product a left join CalMethod b on a.ProductID=b.ProductID where 1=1 and b.
                 ProductCalDetailre.Insert(entity);
                 //插入一条新的检测记录
                 //循环插入5条空的检测录入记录,取消每次录入的按钮，改为一次性录入5条数据
-                for (int i = 0; i < maine.GroupNum; i++)
+                for(int i=0;i<maine.GroupNum;i++)
                 {
                     ProductCalData entityData = new ProductCalData();
                     entityData.ProductDataID = CommonHelper.GetGuid;
@@ -191,7 +185,7 @@ from product a left join CalMethod b on a.ProductID=b.ProductID where 1=1 and b.
                     entityData.ProductCalID = ProductCalID;
                     ProductCalDatare.Insert(entityData);
                 }
-
+                
                 return "1";
             }
         }
@@ -202,27 +196,27 @@ from product a left join CalMethod b on a.ProductID=b.ProductID where 1=1 and b.
             return View();
         }
 
-
+        
         /// <summary>
         /// 获取到的是主表ID，根据主表ID找到进行中的二级表ID，根据二级表的ID插入三级表
         /// </summary>
         /// <param name="ProductCalID"></param>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult InsertInputData(string ProductCalID, string Num)
+        public ActionResult InsertInputData(string ProductCalID,string Num)
         {
             try
             {
                 string sqldatacount = string.Format(@"select case when (select groupnum from ProductCal where ProductCalID='{0}')>
 (select COUNT(1) from dbo.ProductCalData where ProductCalDID in (
 select ProductCalDID from dbo.ProductCalDetail where State='进行中' and ProductCalID='{0}')) 
-then 'success' else 'error' end ", ProductCalID);
+then 'success' else 'error' end ",ProductCalID);
                 DataTable dtdatacount = ProductCalre.FindTableBySql(sqldatacount);
-                if (dtdatacount.Rows[0][0].ToString() == "success") //表示成功，可以输入检测数据
+                if(dtdatacount.Rows[0][0].ToString()=="success") //表示成功，可以输入检测数据
                 {
-                    string sql = string.Format(" select ProductCalDID from dbo.ProductCalDetail where State='进行中' and ProductCalID='{0}' ", ProductCalID);
+                    string sql = string.Format(" select ProductCalDID from dbo.ProductCalDetail where State='进行中' and ProductCalID='{0}' ",ProductCalID);
                     DataTable dt = ProductCalre.FindTableBySql(sql);
-                    if (dt.Rows.Count > 0)
+                    if(dt.Rows.Count>0)
                     {
                         string ProductCalDID = dt.Rows[0][0].ToString();
                         ProductCalData entity = new ProductCalData();
@@ -238,19 +232,17 @@ then 'success' else 'error' end ", ProductCalID);
                         return Content(new JsonMessage { Success = true, Code = "1", Message = "异常，没有正在进行中的检测" }.ToString());
                     }
 
-
+                    
                 }
                 else
                 {
                     return Content(new JsonMessage { Success = true, Code = "1", Message = "本次的检测数据已经全部输入完成，无法再录入数据，请结束本次检测，重新开始下次检测" }.ToString());
                 }
 
-
+                
             }
             catch (Exception ex)
-            {
-                //database.Rollback();
-                //database.Close();
+            { 
                 return Content(new JsonMessage { Success = false, Code = "-1", Message = "操作失败：" + ex.Message }.ToString());
             }
         }
@@ -273,10 +265,10 @@ then 'success' else 'error' end ", ProductCalID);
 select ProductCalDID from dbo.ProductCalDetail where State='进行中' and ProductCalID='{0}')) 
 then 'success' else 'error' end ", ProductCalID);
             DataTable dtdatacount = ProductCalre.FindTableBySql(sqldatacount);
-            if (dtdatacount.Rows[0][0].ToString() == "success") //表示成功，可以结束本次
+            if(dtdatacount.Rows[0][0].ToString()=="success") //表示成功，可以结束本次
             {
                 StringBuilder strsql = new StringBuilder();
-                strsql.AppendFormat(@" update dbo.ProductCalDetail set State='已完成',EndDate=GETDATE(),UpdateMan='{1}' where State='进行中' and ProductCalID='{0}' ", ProductCalID, ManageProvider.Provider.Current().UserName);
+                strsql.AppendFormat(@" update dbo.ProductCalDetail set State='已完成',EndDate=GETDATE(),UpdateMan='{1}' where State='进行中' and ProductCalID='{0}' ", ProductCalID,ManageProvider.Provider.Current().UserName);
                 ProductCalre.ExecuteBySql(strsql);
                 //表示本次成功了.成功以后还需要做其他的分支判断，检测添加了本次以后是否有异常结果
                 //CalBll.CheckFault(ProductCalID);
@@ -288,7 +280,7 @@ then 'success' else 'error' end ", ProductCalID);
                 {
                     return MRBll.CheckFault(ProductCalID);
                 }
-
+               
             }
             else
             {
@@ -314,7 +306,7 @@ then 'success' else 'error' end ", ProductCalID);
 
         //提交检测确认的数据
         [HttpPost]
-        public ActionResult SubmitProductCalData(string ProductCalID, string Detail)
+        public ActionResult SubmitProductCalData(string ProductCalID,string Detail)
         {
             try
             {
@@ -322,7 +314,7 @@ then 'success' else 'error' end ", ProductCalID);
                 string sql = "select ProductCalDID from ProductCalDetail where ProductCalID='{0}' and State='进行中'";
                 sql = string.Format(sql, ProductCalID);
                 DataTable dt = ProductCalDatare.FindTableBySql(sql);
-                if (dt.Rows.Count <= 0)
+                if(dt.Rows.Count<=0)
                 {
                     return Content(new JsonMessage { Success = false, Code = "1", Message = "异常，没有进行中的检测记录，请刷新后重试" }.ToString());
                 }
@@ -385,9 +377,9 @@ where a.ProductCalID='{0}'  and cast(b.StartDate as date)>=cast('{1}' as date) a
 group by a.ProductCalDID,b.StartDate,b.EndDate,c.XLowLimit,c.XUpperLimit,c.XCenterLine,c.RLowLimit,c.RUpperLimit,c.RCenterLine,
 c.StandardLowLimit,c.StandardUpperLimit,c.StandardCenterLine 
 order by StartDate ";
-            sql = string.Format(sql, ProductCalID, StartDate, EndDate);
+            sql = string.Format(sql, ProductCalID,StartDate,EndDate);
             DataTable dt = ProductCalDatare.FindTableBySql(sql);
-            if (dt.Rows.Count > 0)
+            if(dt.Rows.Count>0)
             {
                 //object rCenterLine = dt.Compute("Avg(" + "r" + ")", "true");
                 //decimal rUCL = (decimal)rCenterLine * D1;
@@ -447,8 +439,8 @@ order by StartDate ";
             Repository<MRPictureDTO> re = new Repository<MRPictureDTO>();
             List<MRPictureDTO> list = re.FindListBySql(sql);
             list = MrcalBll.GetMRList(list);
-
-            if (list.Count > 0)
+            
+            if(list.Count>0)
             {
                 return Content(list.ToJson());
             }
@@ -466,17 +458,17 @@ order by StartDate ";
         {
             return CalResultBll.DefaultDetailTable(ProductCalID, ProductCalre);
         }
-        public string FaultTable(string ProductCalID, string StartDate, string EndDate)
+        public string FaultTable(string ProductCalID,string StartDate,string EndDate)
         {
             return CalResultBll.FaultTTable(ProductCalID, StartDate, EndDate, ProductCalre);
         }
-        public string PotentialRiskTable(string ProductCalID, string StartDate, string EndDate)
+        public string PotentialRiskTable(string ProductCalID,string StartDate,string EndDate)
         {
             return CalResultBll.PotentialRisk(ProductCalID, StartDate, EndDate, ProductCalre);
         }
-        public string CalCPK(string ProductCalID, string StartDate, string EndDate, string PictureType)
+        public string CalCPK(string ProductCalID,string StartDate,string EndDate,string PictureType)
         {
-            if (PictureType == "X_Bar")
+            if(PictureType=="X_Bar")
             {
                 return CalResultBll.CalCPK(ProductCalID, StartDate, EndDate, ProductCalre);
             }
@@ -484,7 +476,7 @@ order by StartDate ";
             {
                 return MRCalResultBll.CalCPK(ProductCalID, StartDate, EndDate);
             }
-
+            
         }
 
         [HttpPost]
@@ -514,9 +506,9 @@ order by StartDate ";
                 List<DbParameter> parameter = new List<DbParameter>();
                 strSql.AppendFormat(@" select a.*,b.PartName,ProductNO,Customer 
 from CalFault a left join ProductCal b on a.ProductCalID=b.ProductCalID where 1=1   ");
-                if (!ManageProvider.Provider.Current().IsSystem)
+                if(!ManageProvider.Provider.Current().IsSystem)
                 {
-                    strSql.AppendFormat(" and a.ProductCalID in (select ProductCalID from ProductCal where CompanyID='{0}') ", ManageProvider.Provider.Current().CompanyId);
+                    strSql.AppendFormat(" and a.ProductCalID in (select ProductCalID from ProductCal where CompanyID='{0}') ",ManageProvider.Provider.Current().CompanyId);
                 }
                 if (!CommonHelper.IsEmpty(keywords))
                 {
@@ -572,7 +564,7 @@ from CalFault a left join ProductCal b on a.ProductCalID=b.ProductCalID where 1=
                 CalFault entitySource = FaultRe.FindEntity(KeyValue);
                 string Message = KeyValue == "" ? "新增成功。" : "编辑成功。";
                 if (!string.IsNullOrEmpty(KeyValue))
-                    entitySource.CalFaultID = KeyValue;
+                entitySource.CalFaultID = KeyValue;
                 entitySource.CauseAnaly = entity.CauseAnaly;
                 entitySource.ImproveMeasure = entity.ImproveMeasure;
                 FaultRe.Update(entitySource);
